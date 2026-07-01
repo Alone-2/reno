@@ -1,12 +1,13 @@
 {
-  "name": "website",
+  "name": "@reno/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vp dev",
     "build": "tsc && vp build",
-    "preview": "vp preview"
+    "preview": "vp preview",
+    "deploy": "bash deploy.sh"
   },
   "devDependencies": {
     "typescript": "~6.0.2",

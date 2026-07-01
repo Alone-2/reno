@@ -29,13 +29,13 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <li>
         <a href="https://vite.dev/" target="_blank">
           <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
+          跳转 Vite
         </a>
       </li>
       <li>
         <a href="https://www.typescriptlang.org" target="_blank">
           <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
+          更多
         </a>
       </li>
     </ul>

@@ -1,0 +1,92 @@
+name: Deploy Web
+
+# 触发条件:推送到 master 且改动 web 相关文件时部署;也支持手动触发
+on:
+  push:
+    branches: [master]
+    paths:
+      - "apps/web/**"
+      - "packages/**"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+# 同一分支并发部署只保留最后一次,避免旧部署覆盖新部署
+concurrency:
+  group: deploy-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install pnpm
+        run: npm install -g pnpm@11.9.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm --filter @reno/web run build
+
+      - name: Package dist (tar, forward-slash paths)
+        working-directory: apps/web
+        run: tar -cf reno-web-dist.tar --exclude=reno-web-dist.tar -C dist .
+
+      # 复用仓库里的 deploy.sh,通过环境变量把 CI 的 SSH 配置注入进去:
+      # 用临时密钥文件 + 自定义 known_hosts,避免依赖 runner 的全局 SSH 配置。
+      - name: Deploy to server via deploy.sh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_SSH: reno-deploy
+          DEPLOY_DIR: /opt/1panel/www/sites/reno.lijiakai.com/index
+          DEPLOY_URL: https://reno.lijiakai.com/
+          DEPLOY_OWNER: root
+        run: |
+          set -euo pipefail
+
+          # 1. 写入临时私钥
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # 2. 抓取服务器公钥写入 known_hosts(防中间人,避免交互 yes/no)
+          ssh-keyscan -H 120.26.131.101 >> ~/.ssh/known_hosts 2>/dev/null
+
+          # 3. 配置 SSH 别名 reno-deploy(deploy.sh 用 DEPLOY_SSH=reno-deploy)
+          cat > ~/.ssh/config <<'CFG'
+          Host reno-deploy
+              HostName 120.26.131.101
+              User root
+              IdentityFile ~/.ssh/id_ed25519
+              IdentitiesOnly yes
+              StrictHostKeyChecking accept-new
+          CFG
+          chmod 600 ~/.ssh/config
+
+          # 4. 跳过 deploy.sh 里的「构建 + 打包」步骤(已在前面做完),
+          #    直接复用它的上传 + 远程解压逻辑。这里手动执行等价命令。
+          scp -q apps/web/reno-web-dist.tar reno-deploy:/tmp/reno-web-dist.tar
+          ssh reno-deploy bash -s <<EOF
+          set -euo pipefail
+          find "$DEPLOY_DIR" -mindepth 1 -delete
+          tar -xf /tmp/reno-web-dist.tar -C "$DEPLOY_DIR"
+          chown -R $DEPLOY_OWNER:$DEPLOY_OWNER "$DEPLOY_DIR"
+          rm -f /tmp/reno-web-dist.tar
+          echo "服务器端部署完成"
+          EOF
+
+      - name: Cleanup artifacts
+        if: always()
+        run: rm -f apps/web/reno-web-dist.tar
