@@ -1,11 +1,14 @@
-import { createServer } from "node:http";
+import { serve } from "@hono/node-server";
+import { app } from "./app.js";
 
-const server = createServer((_req, res) => {
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ message: "Reno API Server" }));
-});
+const port = Number(process.env.PORT ?? 3000);
 
-const port = process.env.PORT ?? 3000;
-server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+serve(
+  {
+    fetch: app.fetch,
+    port,
+  },
+  () => {
+    console.log(`🚀 Reno API Server running at http://localhost:${port}`);
+  },
+);

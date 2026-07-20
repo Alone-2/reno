@@ -5,8 +5,14 @@
     "rootDir": "src",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "target": "ESNext",
-    "types": ["node"]
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strict": false
   },
   "include": ["src"]
 }

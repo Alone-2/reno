@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* ── Nest（暖巢）Tailwind 4 CSS-first — 对齐 docs/DESIGN.md / src/lib/theme.ts ── */
+@theme {
+  --color-border: #e7e5e4;
+  --color-input: #e7e5e4;
+  --color-ring: #0f766e;
+  --color-background: #faf8f5;
+  --color-foreground: #1c1917;
+  --color-primary: #0f766e;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f5f0e8;
+  --color-secondary-foreground: #1c1917;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-muted: #f5f0e8;
+  --color-muted-foreground: #78716c;
+  --color-accent: #ecfdf5;
+  --color-accent-foreground: #0f766e;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1c1917;
+  --color-card: #ffffff;
+  --color-card-foreground: #1c1917;
+  --color-success: #15803d;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --radius: 0.75rem;
+}
+
+/* 暗色延后；MVP 以浅色 Nest 为主 */
+.dark {
+  --color-background: #1c1917;
+  --color-foreground: #faf8f5;
+  --color-card: #292524;
+  --color-card-foreground: #faf8f5;
+  --color-popover: #292524;
+  --color-popover-foreground: #faf8f5;
+  --color-primary: #2dd4bf;
+  --color-primary-foreground: #042f2e;
+  --color-secondary: #44403c;
+  --color-secondary-foreground: #faf8f5;
+  --color-muted: #44403c;
+  --color-muted-foreground: #a8a29e;
+  --color-accent: #134e4a;
+  --color-accent-foreground: #ccfbf1;
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #1c1917;
+  --color-border: #44403c;
+  --color-input: #44403c;
+  --color-ring: #2dd4bf;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}

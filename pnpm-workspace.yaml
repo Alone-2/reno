@@ -11,6 +11,12 @@ catalog:
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: 4.1.9
   vite-plus: latest
+  drizzle-orm: ^0.36.4
+  postgres: ^3.4.9
+  drizzle-kit: ^0.30.6
+  zod: ^4.4.3
+  "@hono/zod-openapi": ^1.4.0
+  "@testing-library/user-event": ^14.6.1
 overrides:
   vite: "catalog:"
   vitest: "catalog:"
@@ -23,3 +29,5 @@ peerDependencyRules:
     vitest: "*"
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - tsx@4.23.0

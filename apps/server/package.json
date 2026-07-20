@@ -6,14 +6,25 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "test": "vp test",
+    "check": "vp check"
   },
   "dependencies": {
-    "@reno/shared": "workspace:*"
+    "@hono/node-server": "^1.19.14",
+    "@hono/zod-openapi": "catalog:",
+    "@node-rs/argon2": "^2.0.2",
+    "@reno/db": "workspace:*",
+    "@reno/shared": "workspace:*",
+    "drizzle-orm": "^0.36.4",
+    "hono": "^4.12.27",
+    "jose": "^5.9.6",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "tsx": "^4.19.0",
-    "typescript": "catalog:"
+    "@types/node": "^20.19.43",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.3",
+    "vite-plus": "catalog:"
   }
 }

@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reno · Nest（暖巢）UI 参考图</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #1c1917;
+        --secondary: #78716c;
+        --tertiary: #0f766e;
+        --tertiary-hover: #0d9488;
+        --neutral: #faf8f5;
+        --surface: #ffffff;
+        --surface-muted: #f5f0e8;
+        --border: #e7e5e4;
+        --border-strong: #d6d3d1;
+        --success: #15803d;
+        --success-soft: #dcfce7;
+        --warning: #b45309;
+        --warning-soft: #fef3c7;
+        --danger: #b91c1c;
+        --danger-soft: #fee2e2;
+        --info: #1d4ed8;
+        --info-soft: #dbeafe;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+        --shadow: 0 8px 24px rgba(28, 25, 23, 0.08);
+        --font:
+          "Plus Jakarta Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        color: var(--primary);
+        background: var(--neutral);
+        line-height: 1.5;
+      }
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px 64px;
+      }
+      h1 {
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 1.35rem;
+        margin: 40px 0 16px;
+        letter-spacing: -0.01em;
+      }
+      h3 {
+        font-size: 1rem;
+        margin: 0 0 8px;
+      }
+      .sub {
+        color: var(--secondary);
+        margin: 0 0 28px;
+        font-size: 0.95rem;
+      }
+      .badge-doc {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--secondary);
+        margin-bottom: 16px;
+      }
+      .badge-doc span {
+        color: var(--tertiary);
+      }
+
+      /* Palette */
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+      .swatch {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+      }
+      .swatch .chip {
+        height: 72px;
+      }
+      .swatch .meta {
+        padding: 10px 12px;
+        font-size: 0.75rem;
+      }
+      .swatch .meta strong {
+        display: block;
+        font-size: 0.8rem;
+        margin-bottom: 2px;
+      }
+      .swatch .meta code {
+        color: var(--secondary);
+        font-family: ui-monospace, monospace;
+        font-size: 0.7rem;
+      }
+
+      /* Components row */
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .row:last-child {
+        margin-bottom: 0;
+      }
+      .label {
+        width: 88px;
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--secondary);
+        text-transform: uppercase;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: var(--radius-md);
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid transparent;
+        cursor: default;
+      }
+      .btn-primary {
+        background: var(--tertiary);
+        color: #fff;
+      }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--primary);
+        border-color: var(--border);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--primary);
+      }
+      .btn-danger {
+        background: var(--danger);
+        color: #fff;
+      }
+      .btn-lg {
+        min-height: 48px;
+        padding: 0 20px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .chip-success {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+      .chip-warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+      }
+      .chip-danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+      .chip-info {
+        background: var(--info-soft);
+        color: var(--info);
+      }
+      .chip-neutral {
+        background: var(--surface-muted);
+        color: var(--secondary);
+      }
+
+      .input {
+        height: 40px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 0 12px;
+        font: inherit;
+        background: var(--surface);
+        color: var(--primary);
+        min-width: 200px;
+      }
+      .input::placeholder {
+        color: #a8a29e;
+      }
+
+      /* Mock frames */
+      .frames {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 900px) {
+        .frames {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .phone {
+        width: 100%;
+        max-width: 360px;
+        margin: 0 auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        min-height: 720px;
+        display: flex;
+        flex-direction: column;
+      }
+      .phone-bar {
+        height: 28px;
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        color: var(--secondary);
+        border-bottom: 1px solid var(--border);
+      }
+      .phone-body {
+        flex: 1;
+        background: var(--neutral);
+        padding: 16px;
+        overflow: hidden;
+      }
+      .phone-tabs {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+        padding: 8px 4px 12px;
+      }
+      .tab {
+        text-align: center;
+        font-size: 0.65rem;
+        color: var(--secondary);
+        font-weight: 500;
+      }
+      .tab.active {
+        color: var(--tertiary);
+        font-weight: 700;
+      }
+      .tab .ico {
+        display: block;
+        font-size: 1.1rem;
+        margin-bottom: 2px;
+      }
+
+      .project-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 14px;
+      }
+      .project-head h3 {
+        margin: 0;
+        font-size: 1.15rem;
+      }
+      .project-head p {
+        margin: 4px 0 0;
+        font-size: 0.75rem;
+        color: var(--secondary);
+      }
+
+      .todo {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .todo .bar {
+        width: 3px;
+        border-radius: 2px;
+        align-self: stretch;
+        flex-shrink: 0;
+      }
+      .todo .bar.warn {
+        background: var(--warning);
+      }
+      .todo .bar.danger {
+        background: var(--danger);
+      }
+      .todo .bar.teal {
+        background: var(--tertiary);
+      }
+      .todo .bar.ok {
+        background: var(--success);
+      }
+      .todo strong {
+        display: block;
+        font-size: 0.9rem;
+      }
+      .todo span {
+        font-size: 0.75rem;
+        color: var(--secondary);
+      }
+
+      .budget {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px;
+        margin: 12px 0;
+      }
+      .budget-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+      }
+      .budget-row .num {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+      }
+      .budget-row .num.over {
+        color: var(--danger);
+      }
+      .budget-row .num.warn {
+        color: var(--warning);
+      }
+      .progress {
+        height: 8px;
+        background: var(--surface-muted);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+      .progress > i {
+        display: block;
+        height: 100%;
+        width: 78%;
+        background: linear-gradient(90deg, var(--tertiary), var(--warning));
+        border-radius: 999px;
+      }
+
+      .stage {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 12px 14px;
+        margin-top: 10px;
+      }
+      .stage-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .quick {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .quick .btn {
+        width: 100%;
+        font-size: 0.8rem;
+      }
+
+      /* Desktop mock */
+      .desktop {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        min-height: 520px;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+      }
+      .side {
+        background: var(--surface-muted);
+        border-right: 1px solid var(--border);
+        padding: 16px 12px;
+      }
+      .logo {
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 8px 10px 18px;
+        color: var(--primary);
+      }
+      .logo em {
+        color: var(--tertiary);
+        font-style: normal;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        color: var(--secondary);
+        margin-bottom: 4px;
+      }
+      .nav-item.active {
+        background: var(--surface);
+        color: var(--tertiary);
+        font-weight: 600;
+        box-shadow: inset 2px 0 0 var(--tertiary);
+      }
+      .main {
+        background: var(--neutral);
+        display: flex;
+        flex-direction: column;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+      .top select-like {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+      .content {
+        padding: 20px;
+      }
+      .grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .stat {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px;
+      }
+      .stat .k {
+        font-size: 0.75rem;
+        color: var(--secondary);
+        margin-bottom: 6px;
+      }
+      .stat .v {
+        font-size: 1.35rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+      .stat .v.ok {
+        color: var(--success);
+      }
+      .stat .v.warn {
+        color: var(--warning);
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 12px;
+      }
+      .list-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px;
+      }
+      .list-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+      }
+      .list-row:last-child {
+        border-bottom: 0;
+      }
+
+      .note {
+        margin-top: 28px;
+        padding: 14px 16px;
+        background: var(--surface-muted);
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        color: var(--secondary);
+      }
+      .note a {
+        color: var(--tertiary);
+        font-weight: 600;
+      }
+
+      .type-sample {
+        display: grid;
+        gap: 8px;
+      }
+      .type-sample .t1 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .type-sample .t2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      .type-sample .t3 {
+        font-size: 1rem;
+      }
+      .type-sample .t4 {
+        font-size: 0.875rem;
+        color: var(--secondary);
+      }
+      .type-sample .t5 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="badge-doc">Reno · <span>Nest（暖巢）</span> · UI 参考图 v1.0</div>
+      <h1>Nest 视觉参考</h1>
+      <p class="sub">
+        米纸底 · 白卡片 · 青绿交互 · 状态语义色 · 首页待办优先 · shadcn/ui + Base UI
+      </p>
+
+      <h2>1. 色板</h2>
+      <div class="swatches">
+        <div class="swatch">
+          <div class="chip" style="background: #faf8f5; border-bottom: 1px solid #e7e5e4"></div>
+          <div class="meta"><strong>neutral 页面底</strong><code>#FAF8F5</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #ffffff; border-bottom: 1px solid #e7e5e4"></div>
+          <div class="meta"><strong>surface 卡片</strong><code>#FFFFFF</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #f5f0e8"></div>
+          <div class="meta"><strong>surface-muted</strong><code>#F5F0E8</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #1c1917"></div>
+          <div class="meta"><strong>primary 墨色</strong><code>#1C1917</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #78716c"></div>
+          <div class="meta"><strong>secondary 次文</strong><code>#78716C</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #0f766e"></div>
+          <div class="meta"><strong>tertiary 交互</strong><code>#0F766E</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #15803d"></div>
+          <div class="meta"><strong>success</strong><code>#15803D</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #b45309"></div>
+          <div class="meta"><strong>warning 80%</strong><code>#B45309</code></div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background: #b91c1c"></div>
+          <div class="meta"><strong>danger 超支</strong><code>#B91C1C</code></div>
+        </div>
+      </div>
+
+      <h2>2. 字体与组件</h2>
+      <div class="frames" style="grid-template-columns: 1fr 1.2fr">
+        <div class="panel">
+          <h3>Typography</h3>
+          <div class="type-sample">
+            <div class="t1">我家的装修</div>
+            <div class="t2">空间与建材</div>
+            <div class="t3">待购瓷砖 3 项 · 本周验收防水</div>
+            <div class="t4">辅助说明：金额使用等宽数字 tabular-nums</div>
+            <div class="t5">LABEL · 表单标签</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="row">
+            <div class="label">Buttons</div>
+            <button class="btn btn-primary">主操作</button>
+            <button class="btn btn-secondary">次要</button>
+            <button class="btn btn-ghost">文字</button>
+            <button class="btn btn-danger">删除</button>
+            <button class="btn btn-primary btn-lg">大按钮 48px</button>
+          </div>
+          <div class="row">
+            <div class="label">Chips</div>
+            <span class="chip chip-neutral">规划中</span>
+            <span class="chip chip-info">采购中</span>
+            <span class="chip chip-warning">施工中</span>
+            <span class="chip chip-success">已通过</span>
+            <span class="chip chip-danger">需整改</span>
+          </div>
+          <div class="row">
+            <div class="label">Input</div>
+            <input class="input" placeholder="建材名称" />
+          </div>
+        </div>
+      </div>
+
+      <h2>3. 移动端 · 首页总览（MVP 核心）</h2>
+      <div class="phone">
+        <div class="phone-bar">9:41 · Reno</div>
+        <div class="phone-body">
+          <div class="project-head">
+            <div>
+              <h3>望京 · 三居室</h3>
+              <p>施工中 · 第 42 天</p>
+            </div>
+            <span class="chip chip-warning">施工中</span>
+          </div>
+
+          <div class="todo">
+            <div class="bar warn"></div>
+            <div>
+              <strong>预算已用 78%</strong>
+              <span>接近 80% 预警阈值 · 剩余 ¥44,000</span>
+            </div>
+          </div>
+          <div class="todo">
+            <div class="bar teal"></div>
+            <div>
+              <strong>待购建材 3 项</strong>
+              <span>主卧木地板、厨房水槽、开关面板</span>
+            </div>
+          </div>
+          <div class="todo">
+            <div class="bar danger"></div>
+            <div>
+              <strong>水电阶段逾期 2 天</strong>
+              <span>计划 7/10 完成 · 点此记日志</span>
+            </div>
+          </div>
+          <div class="todo">
+            <div class="bar ok"></div>
+            <div>
+              <strong>待验收 · 防水闭水</strong>
+              <span>注意事项已生成 5 条检查项</span>
+            </div>
+          </div>
+
+          <div class="budget">
+            <div class="budget-row"><span>总预算</span><span class="num">¥200,000</span></div>
+            <div class="budget-row">
+              <span>实际花费</span><span class="num warn">¥156,000</span>
+            </div>
+            <div class="budget-row"><span>剩余</span><span class="num">¥44,000</span></div>
+            <div class="progress"><i></i></div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-top">
+              <strong style="font-size: 0.9rem">当前阶段 · 泥木</strong>
+              <span class="chip chip-warning">进行中</span>
+            </div>
+            <div class="progress"><i style="width: 45%; background: #0f766e"></i></div>
+            <p style="margin: 8px 0 0; font-size: 0.75rem; color: var(--secondary)">
+              计划 14 天 · 已过 6 天
+            </p>
+          </div>
+
+          <div class="quick">
+            <button class="btn btn-primary">记施工日志</button>
+            <button class="btn btn-secondary">添加建材</button>
+          </div>
+        </div>
+        <div class="phone-tabs">
+          <div class="tab active"><span class="ico">⌂</span>总览</div>
+          <div class="tab"><span class="ico">▣</span>空间</div>
+          <div class="tab"><span class="ico">▤</span>建材</div>
+          <div class="tab"><span class="ico">◎</span>进度</div>
+          <div class="tab"><span class="ico">¥</span>成本</div>
+        </div>
+      </div>
+
+      <h2>4. 桌面端 · 侧栏 + 总览</h2>
+      <div class="desktop">
+        <aside class="side">
+          <div class="logo">Reno <em>Nest</em></div>
+          <div class="nav-item active">⌂ 总览</div>
+          <div class="nav-item">▣ 空间</div>
+          <div class="nav-item">▤ 建材</div>
+          <div class="nav-item">◎ 进度</div>
+          <div class="nav-item">¥ 成本</div>
+          <div class="nav-item">⚙ 设置</div>
+        </aside>
+        <div class="main">
+          <div class="top">
+            <div style="display: flex; gap: 10px; align-items: center">
+              <div
+                style="
+                  border: 1px solid var(--border);
+                  border-radius: 10px;
+                  padding: 8px 12px;
+                  font-size: 0.85rem;
+                  font-weight: 600;
+                "
+              >
+                望京 · 三居室 ▾
+              </div>
+              <span class="chip chip-warning">施工中</span>
+            </div>
+            <button class="btn btn-primary">记施工日志</button>
+          </div>
+          <div class="content">
+            <div class="grid3">
+              <div class="stat">
+                <div class="k">总预算</div>
+                <div class="v">¥200,000</div>
+              </div>
+              <div class="stat">
+                <div class="k">实际花费</div>
+                <div class="v warn">¥156,000</div>
+              </div>
+              <div class="stat">
+                <div class="k">剩余 / 健康度</div>
+                <div class="v ok">22%</div>
+              </div>
+            </div>
+            <div class="two">
+              <div class="list-card">
+                <h3>今日待办</h3>
+                <div class="list-row">
+                  <span>待购 · 主卧木地板</span><span class="chip chip-neutral">todo</span>
+                </div>
+                <div class="list-row">
+                  <span>逾期 · 水电收尾</span><span class="chip chip-danger">+2d</span>
+                </div>
+                <div class="list-row">
+                  <span>验收 · 防水闭水</span><span class="chip chip-warning">待做</span>
+                </div>
+                <div class="list-row">
+                  <span>预算接近 80%</span><span class="chip chip-warning">78%</span>
+                </div>
+              </div>
+              <div class="list-card">
+                <h3>当前阶段</h3>
+                <div class="list-row">
+                  <span>泥木工程</span><span class="chip chip-warning">进行中</span>
+                </div>
+                <div class="progress" style="margin: 12px 0">
+                  <i style="width: 45%; background: #0f766e"></i>
+                </div>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--secondary)">
+                  计划 14 天 · 已过 6 天 · 关联注意事项 12 条
+                </p>
+                <div style="margin-top: 14px">
+                  <button class="btn btn-secondary" style="width: 100%">查看阶段详情</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="note">
+        规范全文：<a href="../DESIGN.md">docs/DESIGN.md</a> · 技术：shadcn/ui + Base UI + Tailwind 4
+        · 本页为静态参考稿，非生产代码。
+      </p>
+    </div>
+  </body>
+</html>
