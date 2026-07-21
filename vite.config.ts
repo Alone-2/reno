@@ -1,6 +1,28 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  test: {
+    projects: [
+      "apps/web/vite.config.ts",
+      "apps/server/vite.config.ts",
+      {
+        test: {
+          name: "shared",
+          root: "./packages/shared",
+          environment: "node",
+          include: ["tests/**/*.test.ts"],
+        },
+      },
+      {
+        test: {
+          name: "utils",
+          root: "./packages/utils",
+          environment: "node",
+          include: ["tests/**/*.test.ts"],
+        },
+      },
+    ],
+  },
   staged: {
     "*": "vp check --fix",
   },

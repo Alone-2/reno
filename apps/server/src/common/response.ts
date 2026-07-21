@@ -16,6 +16,28 @@ export interface PaginatedData<T> {
   pageSize: number;
 }
 
+function errorHttpStatus(code: number): number {
+  switch (code) {
+    case ErrorCode.VALIDATION_ERROR:
+    case ErrorCode.INVALID_PARAMS:
+      return 400;
+    case ErrorCode.UNAUTHORIZED:
+    case ErrorCode.TOKEN_EXPIRED:
+    case ErrorCode.TOKEN_INVALID:
+    case ErrorCode.LOGIN_FAILED:
+      return 401;
+    case ErrorCode.REGISTRATION_DISABLED:
+    case ErrorCode.FORBIDDEN:
+      return 403;
+    case ErrorCode.NOT_FOUND:
+      return 404;
+    case ErrorCode.ALREADY_EXISTS:
+      return 409;
+    default:
+      return 500;
+  }
+}
+
 // ── 成功响应 ──
 export function success<T>(c: any, data: T, message?: string): Response {
   return c.json({
@@ -42,11 +64,14 @@ export function paginated<T>(
 
 // ── 错误响应 ──
 export function error(c: any, code: number, message?: string): Response {
-  return c.json({
-    code,
-    message: message ?? ErrorMessage[code] ?? "未知错误",
-    data: null,
-  });
+  return c.json(
+    {
+      code,
+      message: message ?? ErrorMessage[code] ?? "未知错误",
+      data: null,
+    },
+    errorHttpStatus(code),
+  );
 }
 
 // ── 分页参数 schema ──

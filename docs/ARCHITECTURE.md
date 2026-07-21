@@ -685,7 +685,7 @@ GitHub Actions(master push)
   → 1Panel 静态站点托管(https://reno.lijiakai.com/)
 ```
 
-详见 `.github/workflows/deploy-web.yml` 与 `apps/web/deploy.sh`。
+详见 `.github/workflows/deploy-web.yml` 与 `scripts/deploy-web.sh`。
 
 ### Server(后端)
 

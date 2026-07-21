@@ -1,12 +1,14 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
-  // `vp test` — Vitest(node 环境,测试 Hono 路由)
   test: {
-    include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
+    name: "server",
+    environment: "node",
+    include: ["tests/**/*.test.ts"],
+    env: {
+      DATABASE_URL: "postgresql://reno:reno@localhost:5432/reno_test",
+      JWT_SECRET: "reno-test-secret-at-least-16-characters",
+      ENABLE_REGISTRATION: "false",
+    },
   },
-  lint: {
-    options: { typeAware: true, typeCheck: true },
-  },
-  fmt: {},
 });

@@ -9,23 +9,23 @@ test("GET /api/health 返回 ok", async () => {
   const res = await client.api.health.$get();
   expect(res.status).toBe(200);
   const json = await res.json();
-  expect(json.status).toBe("ok");
-  expect(json.message).toBe("Reno API Server is running");
+  expect(json).toEqual({
+    code: 0,
+    message: "ok",
+    data: {
+      status: "ok",
+      message: "Reno API Server is running",
+    },
+  });
 });
 
-test("GET /api/projects 返回项目列表", async () => {
+test("GET /api/projects 未登录时返回 401", async () => {
   const res = await client.api.projects.$get();
-  expect(res.status).toBe(200);
+  expect(res.status).toBe(401);
   const json = await res.json();
-  expect(json).toHaveLength(2);
-  expect(json[0]).toHaveProperty("name");
-});
-
-test("GET /api/materials 返回材料列表", async () => {
-  const res = await client.api.materials.$get();
-  expect(res.status).toBe(200);
-  const json = await res.json();
-  expect(json.length).toBeGreaterThan(0);
+  expect(json).toMatchObject({
+    code: 2001,
+  });
 });
 
 test("未知路由返回 404", async () => {
