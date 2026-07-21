@@ -24,27 +24,27 @@ beforeEach(() => {
   useProjectSession.setState({ currentProjectId: MOCK_PROJECT_A_ID });
 });
 
-test("列表渲染 ≥2 项目", () => {
+test("项目选择器渲染 ≥2 项目", () => {
   renderOverview();
   expect(mockProjects.length).toBeGreaterThanOrEqual(2);
-  expect(screen.getByTestId("project-list").querySelectorAll("button").length).toBe(
+  expect(screen.getByTestId("project-select").querySelectorAll("option").length).toBe(
     mockProjects.length,
   );
 });
 
-test("点击切换后 store 与高亮变化", async () => {
+test("选择项目后 store 与选择值变化", async () => {
   const user = userEvent.setup();
   renderOverview();
-  const b = screen.getByTestId(`project-item-${MOCK_PROJECT_B_ID}`);
-  await user.click(b);
+  const select = screen.getByTestId("project-select");
+  await user.selectOptions(select, MOCK_PROJECT_B_ID);
   expect(useProjectSession.getState().currentProjectId).toBe(MOCK_PROJECT_B_ID);
-  expect(b).toHaveAttribute("data-active", "true");
+  expect(select).toHaveValue(MOCK_PROJECT_B_ID);
 });
 
 test("总览标题随当前项目变", async () => {
   const user = userEvent.setup();
   renderOverview();
   expect(screen.getByRole("heading", { name: "望京自住装修" })).toBeInTheDocument();
-  await user.click(screen.getByTestId(`project-item-${MOCK_PROJECT_B_ID}`));
+  await user.selectOptions(screen.getByTestId("project-select"), MOCK_PROJECT_B_ID);
   expect(screen.getByRole("heading", { name: "昌平新房规划" })).toBeInTheDocument();
 });
