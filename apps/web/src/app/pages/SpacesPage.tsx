@@ -1,5 +1,6 @@
 import type { Space } from "@reno/shared";
-import { LayoutGrid, Plus, Ruler } from "lucide-react";
+import { ArrowRight, ClipboardCheck, LayoutGrid, Plus, Ruler } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getSpacesForProject } from "@/mocks/project-overview";
 import { useProjectSession } from "@/stores/project-session";
@@ -22,6 +23,24 @@ export function SpacesPage({ spaces, empty = false }: { spaces?: Space[]; empty?
           </Button>
         ) : null}
       </header>
+      <Link
+        to="/spaces/notes"
+        className="group flex min-h-20 items-center gap-3 rounded-2xl border border-primary/20 bg-primary-soft p-4 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-card text-primary shadow-sm">
+          <ClipboardCheck aria-hidden="true" className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-bold">装修注意事项</span>
+          <span className="mt-0.5 block text-sm text-muted-foreground">
+            按水电改造、木工定制等施工阶段查漏补缺
+          </span>
+        </span>
+        <ArrowRight
+          aria-hidden="true"
+          className="size-5 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
+        />
+      </Link>
       {list.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border-strong bg-card px-6 py-12 text-center">
           <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-primary">

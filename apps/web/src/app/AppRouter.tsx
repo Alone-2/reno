@@ -3,6 +3,7 @@ import { useAuthSession } from "@/stores/auth-session";
 import { AppShell } from "./AppShell";
 import { CostPage, MaterialsPage, ProgressPage } from "./pages/domain-pages";
 import { LoginPage } from "./pages/LoginPage";
+import { NotesPage } from "./pages/NotesPage";
 import { OverviewRoute } from "./pages/OverviewRoute";
 import { SpacesPage } from "./pages/SpacesPage";
 
@@ -26,6 +27,7 @@ export function AppRouter() {
         >
           <Route index element={<OverviewRoute />} />
           <Route path="spaces" element={<SpacesPage />} />
+          <Route path="spaces/notes" element={<NotesPage />} />
           <Route path="materials" element={<MaterialsPage />} />
           <Route path="progress" element={<ProgressPage />} />
           <Route path="cost" element={<CostPage />} />
