@@ -79,9 +79,12 @@ export const violationStatusEnum = pgEnum("violation_status", [
 
 // ── 材料状态 ──
 export const materialStatusEnum = pgEnum("material_status", [
-  "pending", // 待采购
+  "pending", // 兼容旧值：待采购（API 映射为 todo）
   "ordered", // 已下单
-  "delivered", // 已到货
+  "delivered", // 兼容旧值：已到货（API 映射为 arrived）
+  "installed", // 已安装
+  "returned", // 已退货
+  "cancelled", // 已取消
 ]);
 
 // ── 通知渠道 ──
@@ -91,7 +94,97 @@ export const notificationChannelEnum = pgEnum("notification_channel", [
   "wechat", // 微信（预留）
 ]);
 
+// ── 项目协作角色 ──
+export const projectMemberRoleEnum = pgEnum("project_member_role", [
+  "owner",
+  "contractor",
+  "designer",
+  "supervisor",
+  "property",
+  "family",
+  "viewer",
+]);
+
+// ── 附件分类 ──
+export const attachmentCategoryEnum = pgEnum("attachment_category", [
+  "photo",
+  "document",
+  "invoice",
+  "contract",
+  "drawing",
+  "other",
+]);
+
+// ── 付款计划状态 ──
+export const paymentPlanStatusEnum = pgEnum("payment_plan_status", [
+  "pending",
+  "partial",
+  "paid",
+  "cancelled",
+]);
+
+// ── 变更单状态 ──
+export const changeOrderStatusEnum = pgEnum("change_order_status", [
+  "draft",
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 // ── 照片类型 ──
+// ── 业主行动待办 ──
+export const actionItemTypeEnum = pgEnum("action_item_type", [
+  "task",
+  "decision",
+  "follow_up",
+  "purchase",
+  "payment",
+  "recheck",
+]);
+
+export const actionItemStatusEnum = pgEnum("action_item_status", [
+  "todo",
+  "doing",
+  "done",
+  "cancelled",
+]);
+
+export const actionItemPriorityEnum = pgEnum("action_item_priority", [
+  "low",
+  "normal",
+  "high",
+  "urgent",
+]);
+
+// ── 现场问题 ──
+export const issueStatusEnum = pgEnum("issue_status", ["open", "fixing", "resolved", "verified"]);
+export const issueSeverityEnum = pgEnum("issue_severity", ["low", "medium", "high", "critical"]);
+export const issueSourceTypeEnum = pgEnum("issue_source_type", [
+  "manual",
+  "daily_log",
+  "acceptance",
+]);
+
+// ── 项目联系人 ──
+export const partyTypeEnum = pgEnum("party_type", [
+  "contractor",
+  "foreman",
+  "worker",
+  "designer",
+  "supplier",
+  "installer",
+  "other",
+]);
+
+// ── 关键变更历史 ──
+export const changeHistoryActionEnum = pgEnum("change_history_action", [
+  "create",
+  "update",
+  "status_change",
+  "delete",
+  "restore",
+]);
+
 export const photoTypeEnum = pgEnum("photo_type", [
   "progress", // 进度照片
   "inspection", // 巡检照片

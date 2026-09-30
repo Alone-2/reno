@@ -1,12 +1,37 @@
 import { Hono } from "hono";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { env } from "../../common/env";
 import { ErrorCode } from "../../common/error-codes";
 import { success, error } from "../../common/response";
 import { registerSchema, loginSchema, changePasswordSchema } from "./schema";
-import { registerUser, loginUser, refreshTokens, getCurrentUser, changePassword } from "./service";
+import {
+  registerUser,
+  loginUser,
+  refreshTokens,
+  getCurrentUser,
+  changePassword,
+  durationToMs,
+  logoutSession,
+} from "./service";
 import { requireAuth } from "../../middleware/auth";
 
 export const authRoutes = new Hono();
+
+const REFRESH_COOKIE = "reno_refresh";
+
+function setRefreshCookie(c: any, token: string) {
+  setCookie(c, REFRESH_COOKIE, token, {
+    httpOnly: true,
+    secure: env.NODE_ENV === "production",
+    sameSite: "Lax",
+    path: "/api/auth",
+    maxAge: Math.floor(durationToMs(env.JWT_REFRESH_TTL) / 1000),
+  });
+}
+
+function sessionResponse(result: { user: unknown; accessToken: string; refreshToken: string }) {
+  return { user: result.user, accessToken: result.accessToken };
+}
 
 // 注册
 authRoutes.post("/api/auth/register", async (c) => {
@@ -26,15 +51,16 @@ authRoutes.post("/api/auth/register", async (c) => {
   }
 
   // 注册成功后自动登录
-  const loginResult = await loginUser({
-    username: parsed.data.username,
-    password: parsed.data.password,
-  });
+  const loginResult = await loginUser(
+    { username: parsed.data.username, password: parsed.data.password },
+    c.req.header("user-agent"),
+  );
   if ("error" in loginResult) {
     return error(c, loginResult.error);
   }
 
-  return success(c, loginResult);
+  setRefreshCookie(c, loginResult.refreshToken);
+  return success(c, sessionResponse(loginResult));
 });
 
 // 登录
@@ -45,28 +71,35 @@ authRoutes.post("/api/auth/login", async (c) => {
     return error(c, ErrorCode.VALIDATION_ERROR, parsed.error.issues[0]?.message);
   }
 
-  const result = await loginUser(parsed.data);
+  const result = await loginUser(parsed.data, c.req.header("user-agent"));
   if ("error" in result) {
     return error(c, result.error);
   }
 
-  return success(c, result);
+  setRefreshCookie(c, result.refreshToken);
+  return success(c, sessionResponse(result));
 });
 
 // 刷新 Token
 authRoutes.post("/api/auth/token/refresh", async (c) => {
-  const body = await c.req.json().catch(() => null);
-  const refreshToken = body?.refreshToken;
+  const refreshToken = getCookie(c, REFRESH_COOKIE);
   if (!refreshToken) {
     return error(c, ErrorCode.TOKEN_INVALID);
   }
 
   const result = await refreshTokens(refreshToken);
-  if ("error" in result) {
+  if (!result.ok) {
     return error(c, result.error);
   }
 
-  return success(c, result);
+  setRefreshCookie(c, result.refreshToken);
+  return success(c, sessionResponse(result));
+});
+
+authRoutes.post("/api/auth/logout", async (c) => {
+  await logoutSession(getCookie(c, REFRESH_COOKIE));
+  deleteCookie(c, REFRESH_COOKIE, { path: "/api/auth" });
+  return success(c, null, "已退出登录");
 });
 
 // 获取当前用户

@@ -1,50 +1,76 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, expect, test } from "vite-plus/test";
-import { MemoryRouter } from "react-router-dom";
-import { AppShell } from "../AppShell";
-import { OverviewRoute } from "./OverviewRoute";
-import { MOCK_PROJECT_A_ID, MOCK_PROJECT_B_ID, mockProjects } from "@/mocks/project-overview";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
+import { renoApi, type ApiProject } from "@/lib/reno-api";
 import { useProjectSession } from "@/stores/project-session";
-import { Route, Routes } from "react-router-dom";
+import { ProjectSwitcher } from "../components/ProjectSwitcher";
 
-function renderOverview() {
-  return render(
-    <MemoryRouter>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route index element={<OverviewRoute />} />
-        </Route>
-      </Routes>
-    </MemoryRouter>,
-  );
-}
+const projects: ApiProject[] = [
+  {
+    id: "project-a",
+    ownerId: "owner-1",
+    propertyId: "property-1",
+    type: "residential",
+    status: "active",
+    plannedStart: null,
+    plannedEnd: null,
+    actualStart: null,
+    actualEnd: null,
+    scope: "望京自住装修",
+    depositAmount: null,
+    depositStatus: "pending",
+    createdAt: "2026-07-18T00:00:00.000Z",
+    updatedAt: "2026-07-18T00:00:00.000Z",
+  },
+  {
+    id: "project-b",
+    ownerId: "owner-1",
+    propertyId: "property-2",
+    type: "residential",
+    status: "planning",
+    plannedStart: null,
+    plannedEnd: null,
+    actualStart: null,
+    actualEnd: null,
+    scope: "昌平新房规划",
+    depositAmount: null,
+    depositStatus: "pending",
+    createdAt: "2026-07-18T00:00:00.000Z",
+    updatedAt: "2026-07-18T00:00:00.000Z",
+  },
+];
 
 beforeEach(() => {
-  useProjectSession.setState({ currentProjectId: MOCK_PROJECT_A_ID });
+  vi.restoreAllMocks();
+  useProjectSession.setState({ currentProjectId: "" });
+  vi.spyOn(renoApi, "projects").mockResolvedValue(projects);
 });
 
-test("项目选择器渲染 ≥2 项目", () => {
-  renderOverview();
-  expect(mockProjects.length).toBeGreaterThanOrEqual(2);
-  expect(screen.getByTestId("project-select").querySelectorAll("option").length).toBe(
-    mockProjects.length,
-  );
+test("项目选择器从 API 渲染多个项目并自动选中首项", async () => {
+  render(<ProjectSwitcher />);
+
+  const select = await screen.findByTestId("project-select");
+  expect(select.querySelectorAll("option")).toHaveLength(2);
+  expect(select).toHaveValue("project-a");
+  expect(useProjectSession.getState().currentProjectId).toBe("project-a");
+  expect(screen.getByText("进行中")).toBeInTheDocument();
 });
 
-test("选择项目后 store 与选择值变化", async () => {
+test("选择项目后同步更新项目会话", async () => {
   const user = userEvent.setup();
-  renderOverview();
-  const select = screen.getByTestId("project-select");
-  await user.selectOptions(select, MOCK_PROJECT_B_ID);
-  expect(useProjectSession.getState().currentProjectId).toBe(MOCK_PROJECT_B_ID);
-  expect(select).toHaveValue(MOCK_PROJECT_B_ID);
+  render(<ProjectSwitcher />);
+  const select = await screen.findByTestId("project-select");
+
+  await user.selectOptions(select, "project-b");
+
+  expect(useProjectSession.getState().currentProjectId).toBe("project-b");
+  expect(select).toHaveValue("project-b");
+  expect(screen.getByText("规划中")).toBeInTheDocument();
 });
 
-test("总览标题随当前项目变", async () => {
-  const user = userEvent.setup();
-  renderOverview();
-  expect(screen.getByRole("heading", { name: "望京自住装修" })).toBeInTheDocument();
-  await user.selectOptions(screen.getByTestId("project-select"), MOCK_PROJECT_B_ID);
-  expect(screen.getByRole("heading", { name: "昌平新房规划" })).toBeInTheDocument();
+test("项目接口失败时展示错误信息", async () => {
+  vi.mocked(renoApi.projects).mockRejectedValueOnce(new Error("项目加载失败"));
+  render(<ProjectSwitcher />);
+
+  expect(await screen.findByText("项目加载失败")).toBeInTheDocument();
 });

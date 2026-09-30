@@ -1,26 +1,76 @@
 import { render, screen } from "@testing-library/react";
-import { STAGE_STATUS_LABEL } from "@reno/shared";
-import { beforeEach, expect, test } from "vite-plus/test";
-import { MOCK_PROJECT_A_ID } from "@/mocks/project-overview";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
+import { renoApi, type ApiPhase } from "@/lib/reno-api";
 import { useProjectSession } from "@/stores/project-session";
 import { ProgressPage } from "./domain-pages";
 
+const PROJECT_ID = "project-a";
+const phases: ApiPhase[] = [
+  {
+    id: "phase-1",
+    projectId: PROJECT_ID,
+    phaseName: "拆改",
+    sortOrder: 1,
+    status: "done",
+    standardPhaseKey: "demolition",
+    isPrimaryCurrent: false,
+    isAcceptanceRequired: true,
+    progressPercent: 100,
+    plannedStart: "2026-07-01",
+    plannedEnd: "2026-07-10",
+    actualStart: "2026-07-01",
+    actualEnd: "2026-07-09",
+  },
+  {
+    id: "phase-2",
+    projectId: PROJECT_ID,
+    phaseName: "木作安装",
+    sortOrder: 2,
+    status: "ongoing",
+    standardPhaseKey: "carpentry_customization",
+    isPrimaryCurrent: true,
+    isAcceptanceRequired: true,
+    progressPercent: 45,
+    plannedStart: "2026-08-01",
+    plannedEnd: "2026-08-20",
+    actualStart: "2026-08-01",
+    actualEnd: null,
+  },
+];
+
 beforeEach(() => {
-  useProjectSession.setState({ currentProjectId: MOCK_PROJECT_A_ID });
+  vi.restoreAllMocks();
+  useProjectSession.setState({ currentProjectId: PROJECT_ID });
+  vi.spyOn(renoApi, "phases").mockResolvedValue(phases);
+  vi.spyOn(renoApi, "logs").mockResolvedValue([]);
+  vi.spyOn(renoApi, "photos").mockResolvedValue([]);
 });
 
-test("阶段名可见", () => {
+test("阶段名和后端状态映射为中文", async () => {
   render(<ProgressPage />);
-  expect(screen.getByText("木作安装")).toBeInTheDocument();
-  expect(screen.getByText("拆改")).toBeInTheDocument();
+
+  expect((await screen.findAllByText("木作安装")).length).toBeGreaterThanOrEqual(1);
+  expect(screen.getAllByText("拆改").length).toBeGreaterThanOrEqual(1);
+  expect(screen.getByText("进行中")).toBeInTheDocument();
+  expect(screen.getByText("已完成")).toBeInTheDocument();
+  expect(screen.getByText("当前主阶段")).toBeInTheDocument();
 });
 
-test("ongoing 有「进行中」", () => {
+test("同时加载阶段、施工日志和现场照片", async () => {
   render(<ProgressPage />);
-  expect(screen.getByText(STAGE_STATUS_LABEL.ongoing)).toBeInTheDocument();
+  await screen.findAllByText("木作安装");
+
+  expect(renoApi.phases).toHaveBeenCalledWith(PROJECT_ID);
+  expect(renoApi.logs).toHaveBeenCalledWith(PROJECT_ID);
+  expect(renoApi.photos).toHaveBeenCalledWith(PROJECT_ID);
 });
 
-test("存在「记施工日志」按钮", () => {
+test("提供施工日志和现场照片录入入口", async () => {
   render(<ProgressPage />);
-  expect(screen.getByRole("button", { name: "记施工日志" })).toBeInTheDocument();
+  await screen.findAllByText("木作安装");
+
+  expect(screen.getByRole("heading", { name: "记施工日志" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "保存日志" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "关联现场照片" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "保存照片" })).toBeInTheDocument();
 });

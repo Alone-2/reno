@@ -79,7 +79,10 @@ export function AppShell() {
           {APP_NAV.map((item) => {
             const Icon = item.icon;
             return (
-              <li key={item.to} className="min-w-0">
+              <li
+                key={item.to}
+                className={cn("min-w-0", item.mobile === false && "hidden md:block")}
+              >
                 <NavLink
                   to={item.to}
                   end={item.end}

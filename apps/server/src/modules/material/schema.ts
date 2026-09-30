@@ -1,3 +1,4 @@
+import { MATERIAL_STATUS } from "@reno/shared";
 import { z } from "zod";
 
 // ── 创建材料 ──
@@ -12,6 +13,12 @@ export const createMaterialSchema = z.object({
   totalPrice: z.string().min(0),
   supplier: z.string().max(100).optional(),
   supplierContact: z.string().max(100).optional(),
+  supplierPartyId: z.string().uuid().nullable().optional(),
+  orderNo: z.string().max(120).nullable().optional(),
+  orderDate: z.string().date().nullable().optional(),
+  expectedArrivalDate: z.string().date().nullable().optional(),
+  actualArrivalDate: z.string().date().nullable().optional(),
+  status: z.enum(MATERIAL_STATUS).optional(),
   notes: z.string().optional(),
 });
 

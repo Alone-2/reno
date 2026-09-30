@@ -1,39 +1,67 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { User } from "@reno/shared";
+import { configureApiAuth } from "@/lib/api-client";
+import { renoApi, type ApiUser } from "@/lib/reno-api";
 
 interface AuthState {
   user: User | null;
-  login: (username: string, password: string) => { ok: true } | { ok: false; message: string };
+  accessToken: string | null;
+  refreshToken: string | null;
+  login: (
+    username: string,
+    password: string,
+  ) => Promise<{ ok: true } | { ok: false; message: string }>;
   logout: () => void;
 }
 
-const MOCK_USER: User = {
-  id: "00000000-0000-4000-8000-000000000001",
-  username: "owner",
-  displayName: "业主小王",
-  role: "owner",
-  createdAt: "2026-07-18T10:00:00.000Z",
-  updatedAt: "2026-07-18T10:00:00.000Z",
-};
+function normalizeUser(input: ApiUser): User {
+  return {
+    id: input.id,
+    username: input.username,
+    displayName: input.displayName ?? input.name ?? input.username,
+    role: input.role as User["role"],
+    createdAt: input.createdAt,
+    updatedAt: input.updatedAt,
+  };
+}
 
-/** mock 登录：任意非空用户名 + 密码长度 ≥ 6 */
-export const useAuthSession = create<AuthState>((set) => ({
-  user: null,
-  login: (username, password) => {
-    if (!username.trim()) {
-      return { ok: false, message: "请输入用户名" };
-    }
-    if (!password || password.length < 6) {
-      return { ok: false, message: "密码至少 6 位" };
-    }
-    set({
-      user: {
-        ...MOCK_USER,
-        username: username.trim(),
-        displayName: username.trim(),
+export const useAuthSession = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      login: async (username, password) => {
+        if (!username.trim()) return { ok: false, message: "请输入用户名" };
+        if (!password || password.length < 6) return { ok: false, message: "密码至少 6 位" };
+        try {
+          const result = await renoApi.login(username.trim(), password);
+          set({
+            user: normalizeUser(result.user),
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+          });
+          return { ok: true };
+        } catch (error) {
+          return {
+            ok: false,
+            message: error instanceof Error ? error.message : "登录失败，请稍后重试",
+          };
+        }
       },
-    });
-    return { ok: true };
-  },
-  logout: () => set({ user: null }),
-}));
+      logout: () => set({ user: null, accessToken: null, refreshToken: null }),
+    }),
+    {
+      name: "reno-auth-session",
+      version: 2,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ user: state.user }),
+    },
+  ),
+);
+
+configureApiAuth({
+  getAccessToken: () => useAuthSession.getState().accessToken,
+  onUnauthorized: () => useAuthSession.getState().logout(),
+});

@@ -21,6 +21,11 @@ export const approveProjectSchema = z.object({
   permitNo: z.string().max(50).optional(),
 });
 
+export const projectStatusSchema = z.object({
+  status: z.enum(PROJECT_STATUS),
+  reason: z.string().max(500).optional(),
+});
+
 export const queryProjectsSchema = z.object({
   status: z.enum(PROJECT_STATUS).optional(),
   page: z.coerce.number().int().min(1).default(1),

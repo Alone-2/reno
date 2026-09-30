@@ -6,6 +6,9 @@ import { LoginPage } from "./pages/LoginPage";
 import { NotesPage } from "./pages/NotesPage";
 import { OverviewRoute } from "./pages/OverviewRoute";
 import { SpacesPage } from "./pages/SpacesPage";
+import { TodoPage } from "./pages/TodoPage";
+import { AcceptancePage } from "./pages/AcceptancePage";
+import { ContactsPage } from "./pages/ContactsPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const user = useAuthSession((s) => s.user);
@@ -28,6 +31,9 @@ export function AppRouter() {
           <Route index element={<OverviewRoute />} />
           <Route path="spaces" element={<SpacesPage />} />
           <Route path="spaces/notes" element={<NotesPage />} />
+          <Route path="todos" element={<TodoPage />} />
+          <Route path="contacts" element={<ContactsPage />} />
+          <Route path="acceptance" element={<AcceptancePage />} />
           <Route path="materials" element={<MaterialsPage />} />
           <Route path="progress" element={<ProgressPage />} />
           <Route path="cost" element={<CostPage />} />

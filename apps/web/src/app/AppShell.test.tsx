@@ -6,6 +6,7 @@ import { AppRouter } from "./AppRouter";
 import { APP_NAV } from "./nav";
 
 beforeEach(() => {
+  localStorage.clear();
   useAuthSession.setState({
     user: {
       id: "u1",

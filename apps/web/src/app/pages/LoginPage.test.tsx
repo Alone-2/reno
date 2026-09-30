@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { beforeEach, expect, test } from "vite-plus/test";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
+import { renoApi } from "@/lib/reno-api";
 import { useAuthSession } from "@/stores/auth-session";
 import { LoginPage } from "./LoginPage";
 
@@ -14,7 +15,21 @@ function renderLogin() {
 }
 
 beforeEach(() => {
-  useAuthSession.setState({ user: null });
+  vi.restoreAllMocks();
+  localStorage.clear();
+  useAuthSession.setState({ user: null, accessToken: null, refreshToken: null });
+  vi.spyOn(renoApi, "login").mockResolvedValue({
+    user: {
+      id: "user-1",
+      username: "alice",
+      displayName: "Alice",
+      role: "owner",
+      createdAt: "2026-07-18T00:00:00.000Z",
+      updatedAt: "2026-07-18T00:00:00.000Z",
+    },
+    accessToken: "access-token",
+    refreshToken: "refresh-token",
+  });
 });
 
 test("用户名/密码输入可填", async () => {
@@ -34,7 +49,8 @@ test("提交后 store 有 user", async () => {
   await user.type(screen.getByLabelText("用户名"), "alice");
   await user.type(screen.getByLabelText("密码"), "secret1");
   await user.click(screen.getByRole("button", { name: "登录" }));
-  expect(useAuthSession.getState().user?.username).toBe("alice");
+  expect(renoApi.login).toHaveBeenCalledWith("alice", "secret1");
+  await waitFor(() => expect(useAuthSession.getState().user?.username).toBe("alice"));
 });
 
 test("空密码不进入已登录", async () => {

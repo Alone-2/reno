@@ -1,58 +1,87 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { beforeEach, expect, test } from "vite-plus/test";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
 import { MemoryRouter } from "react-router-dom";
-import { MOCK_PROJECT_A_ID, MOCK_PROJECT_B_ID } from "@/mocks/project-overview";
+import { renoApi, type ApiSpace } from "@/lib/reno-api";
 import { useProjectSession } from "@/stores/project-session";
 import { NotesPage } from "./NotesPage";
 
-function renderPage(initialEntry = "/spaces/notes") {
+const PROJECT_ID = "project-a";
+const spaces: ApiSpace[] = [
+  {
+    id: "space-living",
+    projectId: PROJECT_ID,
+    name: "客厅",
+    area: 28,
+    notes: null,
+    createdAt: "2026-07-18T00:00:00.000Z",
+    updatedAt: "2026-07-18T00:00:00.000Z",
+  },
+  {
+    id: "space-bedroom",
+    projectId: PROJECT_ID,
+    name: "主卧",
+    area: 16,
+    notes: null,
+    createdAt: "2026-07-18T00:00:00.000Z",
+    updatedAt: "2026-07-18T00:00:00.000Z",
+  },
+];
+
+function renderPage() {
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
+    <MemoryRouter>
       <NotesPage />
     </MemoryRouter>,
   );
 }
 
 beforeEach(() => {
-  useProjectSession.setState({ currentProjectId: MOCK_PROJECT_A_ID });
+  vi.restoreAllMocks();
+  useProjectSession.setState({ currentProjectId: PROJECT_ID });
+  vi.spyOn(renoApi, "spaces").mockResolvedValue(spaces);
+  vi.spyOn(renoApi, "checklist").mockImplementation(async (spaceId) =>
+    spaceId === "space-living"
+      ? [
+          {
+            id: "note-1",
+            spaceId,
+            category: "水电",
+            content: "给水改造完成后进行压力和渗漏检查",
+            status: "pending",
+          },
+        ]
+      : [
+          {
+            id: "note-2",
+            spaceId,
+            category: "木作",
+            content: "柜体下单前按最终完成面复尺",
+            status: "done",
+          },
+        ],
+  );
 });
 
-test("展示装修注意事项和八个施工阶段筛选", () => {
+test("汇总各空间的真实检查清单", async () => {
   renderPage();
 
-  expect(screen.getByRole("heading", { name: "装修注意事项" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "水电改造" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "木工定制" })).toBeInTheDocument();
-  expect(screen.getByTestId("filtered-note-count")).toHaveTextContent("16");
-});
-
-test("支持按施工阶段和风险组合筛选", async () => {
-  const user = userEvent.setup();
-  renderPage();
-
-  await user.click(screen.getByRole("button", { name: "水电改造" }));
-  expect(screen.getByTestId("filtered-note-count")).toHaveTextContent("3");
-  expect(screen.getByText("给水改造完成后进行压力和渗漏检查")).toBeInTheDocument();
-  expect(screen.queryByText("柜体下单前按最终完成面复尺")).not.toBeInTheDocument();
-
-  await user.selectOptions(screen.getByLabelText("风险等级"), "high");
-  expect(screen.getByTestId("filtered-note-count")).toHaveTextContent("3");
-});
-
-test("支持从 URL 恢复筛选条件", () => {
-  renderPage("/spaces/notes?phase=carpentry_customization&space=主卧");
-
-  expect(screen.getByRole("button", { name: "木工定制" })).toHaveAttribute("aria-pressed", "true");
-  expect(screen.getByLabelText("空间")).toHaveValue("主卧");
+  expect(await screen.findByText("给水改造完成后进行压力和渗漏检查")).toBeInTheDocument();
   expect(screen.getByText("柜体下单前按最终完成面复尺")).toBeInTheDocument();
-  expect(screen.queryByText("橱柜内阀门、滤芯、排水和设备保持可检修")).not.toBeInTheDocument();
+  expect(screen.getByText(/客厅 · 水电 · 待处理/)).toBeInTheDocument();
+  expect(renoApi.checklist).toHaveBeenCalledTimes(2);
 });
 
-test("其它项目无数据时显示空状态", () => {
-  useProjectSession.setState({ currentProjectId: MOCK_PROJECT_B_ID });
+test("没有空间时显示空状态且不请求清单", async () => {
+  vi.mocked(renoApi.spaces).mockResolvedValueOnce([]);
   renderPage();
 
-  expect(screen.getByText("没有符合条件的注意事项")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "清除筛选" })).toBeInTheDocument();
+  expect(await screen.findByText("暂无注意事项")).toBeInTheDocument();
+  expect(renoApi.checklist).not.toHaveBeenCalled();
+});
+
+test("清单请求失败时展示可访问的错误信息", async () => {
+  vi.mocked(renoApi.checklist).mockRejectedValueOnce(new Error("清单服务不可用"));
+  renderPage();
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("清单服务不可用");
 });

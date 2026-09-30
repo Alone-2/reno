@@ -32,7 +32,7 @@ acceptanceRoutes.get("/api/acceptances/:id", requireAuth, async (c) => {
 acceptanceRoutes.post(
   "/api/acceptances",
   requireAuth,
-  rbac("property", "contractor", "admin"),
+  rbac("owner", "property", "contractor", "admin"),
   async (c) => {
     const body = await c.req.json().catch(() => null);
     const parsed = createAcceptanceSchema.safeParse(body);
@@ -50,6 +50,6 @@ acceptanceRoutes.post("/api/acceptances/:id/approve", requireAuth, async (c) => 
   const parsed = updateAcceptanceResultSchema.safeParse(body);
   if (!parsed.success) return error(c, ErrorCode.VALIDATION_ERROR, parsed.error.issues[0]?.message);
   const result = await updateAcceptanceResult(id, parsed.data.result, parsed.data.notes);
-  if ("error" in result) return error(c, result.error);
+  if (!("acceptance" in result)) return error(c, result.error);
   return success(c, result.acceptance);
 });

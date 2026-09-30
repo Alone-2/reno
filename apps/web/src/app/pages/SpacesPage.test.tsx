@@ -1,46 +1,70 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, expect, test } from "vite-plus/test";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
 import { MemoryRouter } from "react-router-dom";
-import {
-  MOCK_PROJECT_A_ID,
-  MOCK_PROJECT_B_ID,
-  getSpacesForProject,
-} from "@/mocks/project-overview";
+import { renoApi, type ApiSpace } from "@/lib/reno-api";
 import { useProjectSession } from "@/stores/project-session";
 import { SpacesPage } from "./SpacesPage";
 
-function renderPage(props?: React.ComponentProps<typeof SpacesPage>) {
+const PROJECT_A_ID = "project-a";
+const PROJECT_B_ID = "project-b";
+const spaces: ApiSpace[] = [
+  {
+    id: "space-living-room",
+    projectId: PROJECT_A_ID,
+    name: "客厅",
+    area: "28.5",
+    notes: "预留扫地机器人插座",
+    createdAt: "2026-07-18T00:00:00.000Z",
+    updatedAt: "2026-07-18T00:00:00.000Z",
+  },
+  {
+    id: "space-bedroom",
+    projectId: PROJECT_A_ID,
+    name: "主卧",
+    area: 16,
+    notes: null,
+    createdAt: "2026-07-18T00:00:00.000Z",
+    updatedAt: "2026-07-18T00:00:00.000Z",
+  },
+];
+
+function renderPage() {
   return render(
     <MemoryRouter>
-      <SpacesPage {...props} />
+      <SpacesPage />
     </MemoryRouter>,
   );
 }
 
 beforeEach(() => {
-  useProjectSession.setState({ currentProjectId: MOCK_PROJECT_A_ID });
+  vi.restoreAllMocks();
+  useProjectSession.setState({ currentProjectId: PROJECT_A_ID });
+  vi.spyOn(renoApi, "spaces").mockResolvedValue(spaces);
+  vi.spyOn(renoApi, "createSpace").mockResolvedValue(spaces[0]!);
 });
 
-test("有数据时渲染空间名", () => {
+test("从 API 加载并渲染空间", async () => {
   renderPage();
-  expect(screen.getByText("客厅")).toBeInTheDocument();
+
+  expect(await screen.findByText("客厅")).toBeInTheDocument();
   expect(screen.getByText("主卧")).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /装修注意事项/ })).toHaveAttribute(
-    "href",
-    "/spaces/notes",
-  );
+  expect(renoApi.spaces).toHaveBeenCalledWith(PROJECT_A_ID);
 });
 
-test("空列表显示空状态文案", () => {
-  renderPage({ empty: true });
-  expect(screen.getByText(/还没有空间/)).toBeInTheDocument();
+test("空列表显示空状态文案", async () => {
+  vi.mocked(renoApi.spaces).mockResolvedValueOnce([]);
+  renderPage();
+
+  expect(await screen.findByText("暂无空间")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "添加空间" })).toBeInTheDocument();
 });
 
-test("不展示其它项目空间", () => {
-  useProjectSession.setState({ currentProjectId: MOCK_PROJECT_B_ID });
+test("切换项目后只请求当前项目空间", async () => {
+  useProjectSession.setState({ currentProjectId: PROJECT_B_ID });
+  vi.mocked(renoApi.spaces).mockResolvedValueOnce([]);
   renderPage();
-  expect(getSpacesForProject(MOCK_PROJECT_B_ID)).toHaveLength(0);
+
+  expect(await screen.findByText("暂无空间")).toBeInTheDocument();
+  expect(renoApi.spaces).toHaveBeenCalledWith(PROJECT_B_ID);
   expect(screen.queryByText("客厅")).not.toBeInTheDocument();
-  expect(screen.getByText(/还没有空间/)).toBeInTheDocument();
 });

@@ -1,8 +1,10 @@
 # Reno 装修管家 — 技术方案清单
 
-> 版本：v1.3 | 日期：2026-07-17 | 状态：Active
+> 版本：v1.5 | 产品模式：个人私用 | 日期：2026-08-08 | 状态：Review
 >
-> 配套文档：[PRD.md](./PRD.md)（v1.1）、[ARCHITECTURE.md](./ARCHITECTURE.md)、[DESIGN.md](./DESIGN.md)（Nest 暖巢 UI）
+> 配套文档：[PRD.md](./PRD.md)（r1.6，个人目标产品 v1.0）、[ARCHITECTURE.md](./ARCHITECTURE.md)、[DESIGN.md](./DESIGN.md)（Nest 暖巢 UI）。领域契约迁移未完成前，以 PRD §13 的门禁状态为准。
+>
+> v1.5 变更：对齐 PRD r1.6 的个人私用边界；将本地/私有数据、个人备份、进度、注意事项、附件和验收设为核心，合同/增减项、报告、导出、审计与分享降为可选；当前实现仍按 PRD §13 处于迁移门禁。
 >
 > v1.3 变更：shadcn/ui **默认底座改为 Base UI**（`@base-ui/react`）；不再以 Radix 为新组件默认依赖。
 >
@@ -14,13 +16,13 @@
 
 ## 0. 技术原则（强制）
 
-| #   | 原则             | 说明                                                             |
-| --- | ---------------- | ---------------------------------------------------------------- |
-| 1   | **版本可复现**   | 禁止依赖写 `latest`；共享依赖进 pnpm catalog 并钉版本            |
-| 2   | **契约优先**     | API / 枚举 / 状态机 / 预算公式以 `@reno/shared` 为单一真相源     |
-| 3   | **范围对齐 PRD** | 依赖按 MVP / v1.1 / v1.2 裁剪，不为远期功能预装                  |
-| 4   | **工具链可迁移** | 当前允许 Vite+（vp）过渡；**长期目标去掉 vp**，改标准 Vite 生态  |
-| 5   | **状态边界清晰** | 服务端状态 → TanStack Query；UI 状态 → Zustand；表单 → RHF + Zod |
+| #   | 原则             | 说明                                                                       |
+| --- | ---------------- | -------------------------------------------------------------------------- |
+| 1   | **版本可复现**   | 禁止依赖写 `latest`；共享依赖进 pnpm catalog 并钉版本                      |
+| 2   | **契约优先**     | API / 枚举 / 状态机 / 预算公式以 `@reno/shared` 为单一真相源               |
+| 3   | **范围对齐 PRD** | 依赖按个人 v1.0 核心主链裁剪；合同/报告/导出等可选扩展不得反向扩大基础安装 |
+| 4   | **工具链可迁移** | 当前允许 Vite+（vp）过渡；**长期目标去掉 vp**，改标准 Vite 生态            |
+| 5   | **状态边界清晰** | 服务端状态 → TanStack Query；UI 状态 → Zustand；表单 → RHF + Zod           |
 
 ---
 
@@ -129,25 +131,26 @@
 
 ### 2.2 shadcn/ui + Base UI 约定（锁定）
 
-| 项             | 约定                                                                                                                     |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **UI 层**      | shadcn/ui：**组件源码拷贝**进 `apps/web/components/ui`，不是从 npm 整包依赖 `shadcn`                                     |
-| **无样式底座** | **Base UI**（`@base-ui/react`，≥1.6 稳定线；版本钉死）                                                                   |
-| **样式**       | Tailwind CSS 4 + CVA + `cn()`（clsx + tailwind-merge）；主题 OKLCH / CSS variables                                       |
-| **初始化**     | 新项目 / 重装：`pnpm dlx shadcn@latest init` 默认即为 Base UI；**禁止**无理由使用 `-b radix`                             |
-| **新增组件**   | `pnpm dlx shadcn@latest add <name>`，只加 **Base UI** 变体；文档以 [ui.shadcn.com](https://ui.shadcn.com) Base UI 页为准 |
-| **Radix**      | **不为新功能引入** `@radix-ui/*`。若仓库历史残留 Radix 组件：可并存过渡，但应逐步替换；新增页面只用 Base UI 版           |
-| **迁移**       | 需要迁存量时：优先官方 skill（`pnpm dlx skills add shadcn/ui`）按组件渐进迁移；**不做**整库盲 codemod                    |
-| **API 差异**   | 注意 Base UI 与 Radix 差异（如 `asChild` → `render` 等）；以 shadcn Base UI 文档与迁移报告为准                           |
-| **不单独做**   | MVP 不做 `@reno/ui` 包；组件放 `apps/web`                                                                                |
+| 项             | 约定                                                                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **UI 层**      | shadcn/ui：**组件源码拷贝**进 `apps/web/components/ui`，不是从 npm 整包依赖 `shadcn`                                                                 |
+| **无样式底座** | **Base UI**（`@base-ui/react`，≥1.6 稳定线；版本钉死）                                                                                               |
+| **样式**       | Tailwind CSS 4 + CVA + `cn()`（clsx + tailwind-merge）；主题 OKLCH / CSS variables                                                                   |
+| **初始化**     | 新项目 / 重装：使用已审核并钉死版本的 shadcn CLI（示例 `shadcn@<pinned-version> init`）并选择 Base UI；**禁止**无理由使用 `-b radix`                 |
+| **新增组件**   | 使用同一钉版本 CLI（示例 `shadcn@<pinned-version> add <name>`），只加 **Base UI** 变体；文档以 [ui.shadcn.com](https://ui.shadcn.com) Base UI 页为准 |
+| **Radix**      | **不为新功能引入** `@radix-ui/*`。若仓库历史残留 Radix 组件：可并存过渡，但应逐步替换；新增页面只用 Base UI 版                                       |
+| **迁移**       | 需要迁存量时：优先官方 skill（`pnpm dlx skills add shadcn/ui`）按组件渐进迁移；**不做**整库盲 codemod                                                |
+| **API 差异**   | 注意 Base UI 与 Radix 差异（如 `asChild` → `render` 等）；以 shadcn Base UI 文档与迁移报告为准                                                       |
+| **不单独做**   | MVP 不做 `@reno/ui` 包；组件放 `apps/web`                                                                                                            |
 
 ### 2.3 延后安装（对齐 PRD 版本规划）
 
-| 技术              | 版本窗口  | 说明                                 |
-| ----------------- | --------- | ------------------------------------ |
-| **Recharts**      | v1.1 再装 | 成本图表；**MVP 不装、不进默认依赖** |
-| 浏览器推送相关    | v1.1      | 非 MVP                               |
-| 导出 PDF/Excel 库 | v1.1      | 如 `exceljs` / 服务端 PDF，届时再定  |
+| 技术              | 版本窗口  | 说明                                                                     |
+| ----------------- | --------- | ------------------------------------------------------------------------ |
+| **Recharts**      | v1.1 再装 | 成本图表；**MVP 不装、不进默认依赖**                                     |
+| 浏览器推送相关    | v1.1      | 非 MVP                                                                   |
+| 单阶段报告/证据包 | 可选      | 个人版优先生成本地 HTML/JSON 摘要；不生成公开分享链接，不等同于全量导出  |
+| 全量 PDF/Excel 库 | v1.1      | 全项目 Excel / PDF 与跨阶段综合报告；如 `exceljs` / 服务端 PDF，届时再定 |
 
 ### 2.4 前端状态边界
 
@@ -161,20 +164,22 @@
 
 ## 3. 后端
 
-| 技术                  | 版本                                  | 用途                               |
-| --------------------- | ------------------------------------- | ---------------------------------- |
-| **Hono**              | `4.12.27`（建议 catalog）             | HTTP 框架                          |
-| **@hono/node-server** | `1.19.14`                             | Node 适配（生产主路径；不上 edge） |
-| **@hono/zod-openapi** | `1.4.0`（catalog）                    | 路由校验 + OpenAPI（Zod v4）       |
-| **Drizzle ORM**       | `0.36.4`（catalog）                   | SQL-first ORM                      |
-| **postgres.js**       | `3.4.9`（catalog）                    | PG 驱动                            |
-| **Drizzle Kit**       | `0.30.6`（catalog）                   | 迁移                               |
-| **PostgreSQL**        | `17.x`（部署实例钉补丁版本）          | 数据库                             |
-| **jose**              | `5.9.6`                               | JWT                                |
-| **@node-rs/argon2**   | `2.0.2`                               | 密码 argon2id                      |
-| **Zod**               | `4.4.3`（catalog）                    | 校验                               |
-| **sharp**             | **钉死具体版本后安装**（如 `0.33.x`） | 图片转 webp / 压缩                 |
-| **pino**              | **钉死具体版本后安装**                | 结构化日志                         |
+> 个人私用不等于立即更换数据库。近期沿用现有 PostgreSQL + Drizzle 以控制迁移成本；如果单机安装、升级或备份明显影响持续使用，再以独立 ADR 评估 SQLite，不在本轮同时重写业务模型和存储层。
+
+| 技术                  | 版本                                  | 用途                                                    |
+| --------------------- | ------------------------------------- | ------------------------------------------------------- |
+| **Hono**              | `4.12.27`（建议 catalog）             | HTTP 框架                                               |
+| **@hono/node-server** | `1.19.14`                             | Node 适配（生产主路径；不上 edge）                      |
+| **@hono/zod-openapi** | `1.4.0`（catalog）                    | 路由校验 + OpenAPI（Zod v4）                            |
+| **Drizzle ORM**       | `0.36.4`（catalog）                   | SQL-first ORM                                           |
+| **postgres.js**       | `3.4.9`（catalog）                    | PG 驱动                                                 |
+| **Drizzle Kit**       | `0.30.6`（catalog）                   | 迁移                                                    |
+| **PostgreSQL**        | `17.x`（部署实例钉补丁版本）          | 数据库                                                  |
+| **jose**              | `5.9.6`                               | JWT                                                     |
+| **@node-rs/argon2**   | `2.0.2`                               | 密码 argon2id                                           |
+| **Zod**               | `4.4.3`（catalog）                    | 校验                                                    |
+| **sharp**             | **钉死具体版本后安装**（如 `0.33.x`） | 现场图片缩略图 / 压缩 / EXIF 清理；PDF 与文档保留原格式 |
+| **pino**              | **钉死具体版本后安装**                | 结构化日志                                              |
 
 > **已移除且不再引入：** `prisma`、`multer`（用 Hono `parseBody`）、`bcrypt`、`jsonwebtoken`、`axios`。
 
@@ -185,17 +190,17 @@
 | Access Token  | JWT **HS256**，有效期 2h（密钥仅服务端，`JWT_SECRET` 足够长） |
 | Refresh Token | 7d，**轮换**；重放检测（存 jti 或 token 版本）                |
 | 密码          | argon2id                                                      |
-| 权限          | v1 **仅业主**；协作者 v1.2                                    |
+| 权限          | v1 **仅单一业主**；不做协作者/租户/RBAC                       |
 | 演进          | 文档预留 RS256/EdDSA + JWKS；多实例或网关拆分时再迁           |
 
 ### 3.2 上传与媒体（MVP 最小）
 
-| 项   | 决策                                                                       |
-| ---- | -------------------------------------------------------------------------- |
-| 存储 | v1：**本地磁盘**或单机挂载目录（由 env `UPLOAD_DIR`）；对象存储 v1.1+ 可选 |
-| 处理 | `sharp` → webp；最长边限制（建议 1920）；质量可配置                        |
-| 限制 | 类型白名单 `jpg/jpeg/png/webp`；单文件 ≤ 20MB（压缩前）                    |
-| 引用 | DB 存相对路径或 URL；删除业务实体时清理孤儿文件（尽力而为）                |
+| 项   | 决策                                                                                                                                                                             |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 存储 | 本地/私有网络的 `UPLOAD_DIR` 为默认方案；OSS/MinIO 仅作私有备份，不提供公开文件 URL或云端试用                                                                                    |
+| 处理 | `sharp` → webp；最长边限制（建议 1920）；默认清除 EXIF 定位信息；失败支持可见重试，不产生半完成业务记录                                                                          |
+| 限制 | 按 `Attachment.category` 校验 MIME、扩展名、内容签名和配额；现场照片限 `jpg/jpeg/png/webp`，合同/报价/图纸可含 PDF；单文件 ≤ 20MB（压缩前）                                      |
+| 引用 | 业务表只保存 `attachmentId`/关联关系；`Attachment` 保存 `storageKey`、`checksum` 等元数据。读取仅返回本地受保护句柄或私有网络短期签名 URL；删除/软删除与孤儿复核按 PRD §3.8 执行 |
 
 ### 3.3 日志与观测（MVP 最小）
 
@@ -219,14 +224,14 @@
 
 ### 4.1 `@reno/shared` 必含模块（技术强制）
 
-| 模块             | 内容                                                                       |
-| ---------------- | -------------------------------------------------------------------------- |
-| `enums`          | 项目/建材/阶段/验收/款项等状态枚举（与 PRD §2.5 一致）                     |
-| `state-machines` | 合法迁移表 + `canTransition(from, to)`                                     |
-| `budget`         | `totalBudget` / `budgetCommitted` / `actualSpent` / 阈值（PRD §2.6）纯函数 |
-| `schemas`        | Zod：登录、项目、空间、建材、阶段、验收等；供 OpenAPI 与前端表单共用       |
-| `errors`         | 统一错误码（如 `INVALID_STATE`、`BUDGET_OVERFLOW`、`HAS_DEPENDENTS`）      |
-| `api`            | 统一响应类型 `{ code, message, data }`                                     |
+| 模块             | 内容                                                                                                                                                                                                             |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enums`          | 项目/建材/阶段/验收/款项等状态枚举（与 PRD §2.5 一致）                                                                                                                                                           |
+| `state-machines` | 合法迁移表 + `canTransition(from, to)`                                                                                                                                                                           |
+| `budget`         | `totalBudget` / `actualSpent` / `remainingCommitted` / `forecastTotal` / `availableBudget` / `contractedAmount` / `approvedChangeAmount` / `contractNetAmount` / `unallocatedCommitted` 及阈值（PRD §2.6）纯函数 |
+| `schemas`        | Zod：可选登录/刷新、项目、空间、建材、阶段、注意事项、款项、验收、附件/备份；合同/报告/导出 schema 按需启用，供 OpenAPI 与前端表单共用                                                                           |
+| `errors`         | 统一稳定错误码（如 `UNAUTHORIZED`、`FORBIDDEN`、`PROJECT_NOT_READY`、`CROSS_PROJECT_REFERENCE`、`CHANGE_ORDER_ALLOCATION_EXCEEDED`、`UPLOAD_FILE_INVALID`）                                                      |
+| `api`            | 统一响应类型 `{ code, errorCode?, message, data: T 或 null }`；错误响应 `data=null`                                                                                                                              |
 
 > 前后端 **禁止** 各自复制状态字符串或预算公式；改 shared 必须跑 shared 单测。
 
@@ -254,12 +259,12 @@
 
 ## 6. 测试策略
 
-| 层级     | 范围                                      | 工具                        | 最低要求           |
-| -------- | ----------------------------------------- | --------------------------- | ------------------ |
-| **Unit** | `@reno/shared` 状态机、预算公式、Zod 边界 | Vitest                      | 纯函数变更必须有测 |
-| **API**  | Hono 路由（鉴权、状态迁移、级联删除拒绝） | Vitest + 测试 DB 或事务回滚 | 核心写路径覆盖     |
-| **UI**   | 关键表单 / 待办卡片展示                   | Vitest + Testing Library    | 冒烟即可           |
-| **E2E**  | 主流程                                    | 延后 v1.1+（Playwright 等） | 非 MVP 门槛        |
+| 层级     | 范围                                                                    | 工具                               | 最低要求                                         |
+| -------- | ----------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------ |
+| **Unit** | `@reno/shared` 状态机、预算公式、Zod 边界                               | Vitest                             | 纯函数变更必须有测                               |
+| **API**  | Hono 路由（鉴权、状态迁移、级联删除拒绝）                               | Vitest + 测试 DB 或事务回滚        | 核心写路径覆盖                                   |
+| **UI**   | 关键表单 / 待办卡片展示                                                 | Vitest + Testing Library           | 冒烟即可                                         |
+| **E2E**  | v1.0 个人“规划与记录”及“现场与验收”两条主链（含所有权、附件、备份恢复） | Playwright 等；可与 API 集成测组合 | **个人 v1.0 门禁**；合同/报告/导出等扩展单独回归 |
 
 环境：测试用独立 `DATABASE_URL`；CI 注入 `JWT_SECRET` 等必填 env，禁止依赖开发者本机隐式配置。
 
@@ -338,17 +343,19 @@
 
 ## 10. 已知技术债（文档层跟踪）
 
-| 项                           | 处理                                                        |
-| ---------------------------- | ----------------------------------------------------------- |
-| 强依赖 vp                    | 按 §1.3 T0→T3 拆除                                          |
-| catalog 未覆盖 React/Hono 等 | 扩大 catalog                                                |
-| sharp / pino 未装            | 钉版本后安装并写 env                                        |
-| Recharts 若已在 web 依赖中   | MVP 前可保留但不做图表页；或移出 dependencies 至 v1.1       |
-| JWT 仅 HS256                 | v1 接受；密钥轮换与长度写入运维清单                         |
-| `@reno/ui`                   | MVP 不做                                                    |
-| 过渡期 vp 内置 fmt/pack      | 去 vp 后改为独立 **Oxfmt** + **tsdown** 脚本与 catalog 版本 |
-| 历史 Radix 组件（若有）      | 新功能只用 Base UI；存量按组件渐进迁移                      |
+| 项                                              | 处理                                                                          |
+| ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| 强依赖 vp                                       | 按 §1.3 T0→T3 拆除                                                            |
+| catalog 未覆盖 React/Hono 等                    | 扩大 catalog                                                                  |
+| sharp / pino 未装                               | 钉版本后安装并写 env                                                          |
+| Recharts 若已在 web 依赖中                      | MVP 前可保留但不做图表页；或移出 dependencies 至 v1.1                         |
+| JWT 仅 HS256                                    | v1 接受；密钥轮换与长度写入运维清单                                           |
+| `@reno/ui`                                      | MVP 不做                                                                      |
+| 旧预算字段 `budgetCommitted` / `committed_full` | 仅迁移适配层兼容读取；M1 统一 `remainingCommitted` 等 §2.6 目标字段后禁止新写 |
+| 旧照片/设计文档 URL 数组                        | M2–M3 收敛为 `Attachment`；业务表只存附件 ID，禁止把公开 URL 作为新契约       |
+| 过渡期 vp 内置 fmt/pack                         | 去 vp 后改为独立 **Oxfmt** + **tsdown** 脚本与 catalog 版本                   |
+| 历史 Radix 组件（若有）                         | 新功能只用 Base UI；存量按组件渐进迁移                                        |
 
 ---
 
-_本文档由 Reno 项目团队维护。版本 v1.3（2026-07-17）。长期工具链：**标准 Vite + Vitest + Oxlint + Oxfmt + tsdown**，去除 Vite+（vp）；UI：**shadcn/ui + Base UI**（不用 Prettier / tsup / 新 Radix）。_
+_本文档由 Reno 项目团队维护。版本 v1.5（个人私用，2026-08-08，Review）。长期工具链：**标准 Vite + Vitest + Oxlint + Oxfmt + tsdown**，去除 Vite+（vp）；UI：**shadcn/ui + Base UI**（不用 Prettier / tsup / 新 Radix）。领域契约与个人 v1.0 门禁以 PRD r1.6 §13 为准。_

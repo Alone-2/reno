@@ -1,6 +1,7 @@
-import { pgTable, uuid, varchar, decimal, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, decimal, text, timestamp, date } from "drizzle-orm/pg-core";
 import { renovationProject } from "./project";
 import { materialStatusEnum } from "./enums";
+import { party } from "./party";
 
 // ── 材料采购表 ──
 export const material = pgTable("material", {
@@ -17,6 +18,11 @@ export const material = pgTable("material", {
   totalPrice: decimal("total_price", { precision: 12, scale: 2 }).notNull(),
   supplier: varchar("supplier", { length: 100 }),
   supplierContact: varchar("supplier_contact", { length: 100 }),
+  supplierPartyId: uuid("supplier_party_id").references(() => party.id, { onDelete: "set null" }),
+  orderNo: varchar("order_no", { length: 120 }),
+  orderDate: date("order_date"),
+  expectedArrivalDate: date("expected_arrival_date"),
+  actualArrivalDate: date("actual_arrival_date"),
   status: materialStatusEnum("status").default("pending").notNull(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -24,6 +24,17 @@ export function getApiBaseUrl(): string {
 
 type FetchLike = typeof fetch;
 
+let accessTokenProvider: (() => string | null) | null = null;
+let unauthorizedHandler: (() => void) | null = null;
+
+export function configureApiAuth(options: {
+  getAccessToken: () => string | null;
+  onUnauthorized?: () => void;
+}) {
+  accessTokenProvider = options.getAccessToken;
+  unauthorizedHandler = options.onUnauthorized ?? null;
+}
+
 export async function apiRequest<T>(
   path: string,
   init?: RequestInit,
@@ -32,11 +43,13 @@ export async function apiRequest<T>(
   const url = path.startsWith("http")
     ? path
     : `${getApiBaseUrl()}${path.startsWith("/") ? "" : "/"}${path}`;
+  const token = accessTokenProvider?.();
   const res = await fetchImpl(url, {
     ...init,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers instanceof Headers
         ? Object.fromEntries(init.headers.entries())
         : Array.isArray(init?.headers)
@@ -57,6 +70,7 @@ export async function apiRequest<T>(
   }
 
   if (body.code !== API_ERROR_CODES.OK) {
+    if (res.status === 401 || body.code === API_ERROR_CODES.UNAUTHORIZED) unauthorizedHandler?.();
     throw new ApiError(body.code, body.message || "Request failed", res.status);
   }
 

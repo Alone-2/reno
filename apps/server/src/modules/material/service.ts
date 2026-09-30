@@ -1,3 +1,4 @@
+import type { MaterialStatus } from "@reno/shared";
 import { eq, desc } from "drizzle-orm";
 import { db, material, expense } from "../../common/db";
 import { ErrorCode } from "../../common/error-codes";
@@ -10,19 +11,44 @@ import type {
 
 // ── 材料相关 ──
 
+const MATERIAL_DB_TO_API: Record<string, MaterialStatus> = {
+  pending: "todo",
+  ordered: "ordered",
+  delivered: "arrived",
+  installed: "installed",
+  returned: "returned",
+  cancelled: "cancelled",
+};
+
+const MATERIAL_API_TO_DB: Record<
+  MaterialStatus,
+  "pending" | "ordered" | "delivered" | "installed" | "returned" | "cancelled"
+> = {
+  todo: "pending",
+  ordered: "ordered",
+  arrived: "delivered",
+  installed: "installed",
+  returned: "returned",
+  cancelled: "cancelled",
+};
+
+function materialDto(item: typeof material.$inferSelect) {
+  return { ...item, status: MATERIAL_DB_TO_API[item.status] ?? "todo" };
+}
+
 export async function listMaterials(projectId: string) {
   const items = await db
     .select()
     .from(material)
     .where(eq(material.projectId, projectId))
     .orderBy(desc(material.createdAt));
-  return { list: items };
+  return { list: items.map(materialDto) };
 }
 
 export async function getMaterial(id: string) {
   const [item] = await db.select().from(material).where(eq(material.id, id)).limit(1);
   if (!item) return { error: ErrorCode.NOT_FOUND };
-  return { material: item };
+  return { material: materialDto(item) };
 }
 
 export async function createMaterial(input: CreateMaterialInput) {
@@ -39,16 +65,31 @@ export async function createMaterial(input: CreateMaterialInput) {
       totalPrice: input.totalPrice,
       supplier: input.supplier ?? null,
       supplierContact: input.supplierContact ?? null,
+      supplierPartyId: input.supplierPartyId ?? null,
+      orderNo: input.orderNo ?? null,
+      orderDate: input.orderDate ?? null,
+      expectedArrivalDate: input.expectedArrivalDate ?? null,
+      actualArrivalDate: input.actualArrivalDate ?? null,
+      status: input.status ? MATERIAL_API_TO_DB[input.status] : "pending",
       notes: input.notes ?? null,
     } as typeof material.$inferInsert)
     .returning();
-  return { material: created };
+  return { material: materialDto(created) };
 }
 
 export async function updateMaterial(id: string, input: UpdateMaterialInput) {
-  const [updated] = await db.update(material).set(input).where(eq(material.id, id)).returning();
+  const updateData = {
+    ...input,
+    ...(input.status ? { status: MATERIAL_API_TO_DB[input.status] } : {}),
+    updatedAt: new Date(),
+  } as typeof material.$inferInsert;
+  const [updated] = await db
+    .update(material)
+    .set(updateData)
+    .where(eq(material.id, id))
+    .returning();
   if (!updated) return { error: ErrorCode.NOT_FOUND };
-  return { material: updated };
+  return { material: materialDto(updated) };
 }
 
 export async function deleteMaterial(id: string) {

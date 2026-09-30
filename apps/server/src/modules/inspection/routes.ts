@@ -28,7 +28,7 @@ inspectionRoutes.get("/api/projects/:id/inspections", requireAuth, async (c) => 
 inspectionRoutes.post(
   "/api/inspections",
   requireAuth,
-  rbac("inspector", "property", "admin"),
+  rbac("owner", "inspector", "property", "admin"),
   async (c) => {
     const body = await c.req.json().catch(() => null);
     const parsed = createInspectionSchema.safeParse(body);
@@ -50,7 +50,7 @@ inspectionRoutes.get("/api/projects/:id/violations", requireAuth, async (c) => {
 inspectionRoutes.post(
   "/api/violations",
   requireAuth,
-  rbac("inspector", "property", "admin"),
+  rbac("owner", "inspector", "property", "admin"),
   async (c) => {
     const body = await c.req.json().catch(() => null);
     const parsed = createViolationSchema.safeParse(body);
@@ -64,7 +64,7 @@ inspectionRoutes.post(
 inspectionRoutes.put(
   "/api/violations/:id/status",
   requireAuth,
-  rbac("inspector", "property", "admin"),
+  rbac("owner", "inspector", "property", "admin"),
   async (c) => {
     const id = c.req.param("id");
     const body = await c.req.json().catch(() => null);

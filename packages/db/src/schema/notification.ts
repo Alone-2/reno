@@ -1,6 +1,7 @@
 import { pgTable, uuid, varchar, text, boolean, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./user";
 import { notificationChannelEnum } from "./enums";
+import { renovationProject } from "./project";
 
 // ── 通知表 ──
 export const notification = pgTable("notification", {
@@ -8,9 +9,11 @@ export const notification = pgTable("notification", {
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id").references(() => renovationProject.id, { onDelete: "cascade" }),
   type: varchar("type", { length: 50 }).notNull(),
   title: varchar("title", { length: 100 }).notNull(),
   content: text("content"),
+  href: varchar("href", { length: 500 }),
   read: boolean("read").default(false).notNull(),
   channel: notificationChannelEnum("channel").default("in_app").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -8,7 +8,6 @@ import {
   type ProjectOverview,
   type TodoCard,
 } from "@reno/shared";
-import { mockProjectOverview } from "@/mocks/project-overview";
 import { cn } from "@/lib/utils";
 
 function formatYuan(fen: number): string {
@@ -32,20 +31,20 @@ const TODO_BADGE_CLASS: Record<TodoCard["severity"], string> = {
   ok: "bg-success-soft text-success",
 };
 
-export function OverviewPage({ overview = mockProjectOverview }: { overview?: ProjectOverview }) {
+export function OverviewPage({ overview }: { overview: ProjectOverview }) {
   const { project, budget, budgetHealth, currentStage, todos } = overview;
   const spendPercent = Math.min(100, Math.max(0, Math.round(budget.spendRatio * 100)));
   const healthLabel = BUDGET_HEALTH_LABEL[budgetHealth];
   const budgetTone =
     budgetHealth === "over"
       ? "text-danger"
-      : budgetHealth === "warn" || budgetHealth === "committed_full"
+      : budgetHealth === "warn" || budgetHealth === "forecast_over"
         ? "text-warning"
         : "text-success";
   const progressTone =
     budgetHealth === "over"
       ? "bg-danger"
-      : budgetHealth === "warn" || budgetHealth === "committed_full"
+      : budgetHealth === "warn" || budgetHealth === "forecast_over"
         ? "bg-warning"
         : "bg-primary";
 

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, date, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, date, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 import { renovationProject } from "./project";
 import { phaseStatusEnum } from "./enums";
 
@@ -11,6 +11,9 @@ export const projectPhase = pgTable("project_phase", {
   phaseName: varchar("phase_name", { length: 50 }).notNull(),
   sortOrder: integer("sort_order").notNull(),
   status: phaseStatusEnum("status").default("pending").notNull(),
+  standardPhaseKey: varchar("standard_phase_key", { length: 50 }),
+  isPrimaryCurrent: boolean("is_primary_current").default(false).notNull(),
+  isAcceptanceRequired: boolean("is_acceptance_required").default(true).notNull(),
   progressPercent: integer("progress_percent").default(0).notNull(),
   plannedStart: date("planned_start"),
   plannedEnd: date("planned_end"),

@@ -8,9 +8,8 @@ catalogMode: prefer
 catalog:
   "@types/node": ^24
   typescript: ^7.0.2
-  vite: npm:@voidzero-dev/vite-plus-core@latest
-  vitest: 4.1.9
-  vite-plus: latest
+  vite: npm:@voidzero-dev/vite-plus-core@0.3.1
+  vite-plus: 0.3.1
   drizzle-orm: ^0.36.4
   postgres: ^3.4.9
   drizzle-kit: ^0.30.6
@@ -18,16 +17,23 @@ catalog:
   "@hono/zod-openapi": ^1.4.0
   "@testing-library/user-event": ^14.6.1
 overrides:
-  vite: "catalog:"
-  vitest: "catalog:"
+  vite@*: "catalog:"
 peerDependencyRules:
   allowAny:
     - vite
-    - vitest
   allowedVersions:
     vite: "*"
-    vitest: "*"
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
   - tsx@4.23.0
+  - "@voidzero-dev/vite-plus-core@0.3.1"
+  - "@voidzero-dev/vite-plus-darwin-arm64@0.3.1"
+  - "@voidzero-dev/vite-plus-darwin-x64@0.3.1"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@0.3.1"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@0.3.1"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@0.3.1"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@0.3.1"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@0.3.1"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@0.3.1"
+  - vite-plus@0.3.1

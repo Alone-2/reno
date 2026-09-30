@@ -8,7 +8,7 @@ import { OverviewPage } from "./OverviewPage";
 function renderOverviewPage() {
   return render(
     <MemoryRouter>
-      <OverviewPage />
+      <OverviewPage overview={mockProjectOverview} />
     </MemoryRouter>,
   );
 }
@@ -31,9 +31,9 @@ test("预算「总预算」与格式化金额可见", () => {
   expect(screen.getAllByText(/¥/).length).toBeGreaterThanOrEqual(1);
 });
 
-test("状态 Chip 中文而非 constructing 原文", () => {
+test("状态 Chip 中文而非 active 原文", () => {
   renderOverviewPage();
   const chip = screen.getByTestId("project-status-chip");
-  expect(chip).toHaveTextContent(PROJECT_STATUS_LABEL.constructing);
-  expect(chip).not.toHaveTextContent("constructing");
+  expect(chip).toHaveTextContent(PROJECT_STATUS_LABEL.active);
+  expect(chip).not.toHaveTextContent("active");
 });

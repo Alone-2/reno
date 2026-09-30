@@ -1,7 +1,5 @@
+import { STAGE_STATUS } from "@reno/shared";
 import { z } from "zod";
-
-// ── 阶段状态枚举 ──
-const PHASE_STATUS = ["pending", "in_progress", "completed", "accepted"] as const;
 
 // ── 创建施工阶段 ──
 export const createPhaseSchema = z.object({
@@ -10,6 +8,9 @@ export const createPhaseSchema = z.object({
   sortOrder: z.number().int().min(0),
   plannedStart: z.string().date().optional(),
   plannedEnd: z.string().date().optional(),
+  standardPhaseKey: z.string().max(50).optional(),
+  isPrimaryCurrent: z.boolean().optional(),
+  isAcceptanceRequired: z.boolean().optional(),
 });
 
 // ── 更新施工阶段（partial） ──
@@ -17,7 +18,7 @@ export const updatePhaseSchema = createPhaseSchema.partial();
 
 // ── 更新阶段状态 ──
 export const updatePhaseStatusSchema = z.object({
-  status: z.enum(PHASE_STATUS),
+  status: z.enum(STAGE_STATUS),
   progressPercent: z.number().int().min(0).max(100).optional(),
 });
 

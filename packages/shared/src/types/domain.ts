@@ -6,10 +6,18 @@
 
 import type { BudgetSummary } from "../budget.js";
 import type {
+  ActionItemPriority,
+  ActionItemStatus,
+  ActionItemType,
   BudgetHealth,
   InspectionItemStatus,
+  IssueSeverity,
+  IssueSourceType,
+  IssueStatus,
   MaterialStatus,
   NoteStatus,
+  PartyType,
+  PaymentConditionStatus,
   PaymentPayeeType,
   PaymentStatus,
   ProjectStatus,
@@ -179,11 +187,18 @@ export interface Material extends Timestamps {
   plannedQty: number;
   /** 预估单价，分 */
   estimatedUnitPrice: number;
-  /** 实际单价，分；bought 起必填 */
+  /** 实际数量；下单后可记录。 */
+  actualQty: number | null;
+  /** 实际单价，分；ordered 起必填 */
   actualUnitPrice: number | null;
   status: MaterialStatus;
   channel: string | null;
   purchaseUrl: string | null;
+  orderNo: string | null;
+  orderDate: string | null;
+  expectedArrivalDate: string | null;
+  actualArrivalDate: string | null;
+  supplierPartyId: string | null;
   remark: string | null;
 }
 
@@ -195,16 +210,22 @@ export interface MaterialInput {
   unit: string;
   plannedQty: number;
   estimatedUnitPrice: number;
+  actualQty?: number | null;
   actualUnitPrice?: number | null;
   status?: MaterialStatus;
   channel?: string | null;
   purchaseUrl?: string | null;
+  orderNo?: string | null;
+  orderDate?: string | null;
+  expectedArrivalDate?: string | null;
+  actualArrivalDate?: string | null;
+  supplierPartyId?: string | null;
   remark?: string | null;
 }
 
 export interface MaterialStatusChange {
   status: MaterialStatus;
-  /** 进入 bought 及之后时必填 */
+  /** 进入 ordered/arrived/installed 时必填 */
   actualUnitPrice?: number | null;
 }
 
@@ -234,6 +255,8 @@ export interface Payment extends Timestamps {
   id: string;
   projectId: string;
   stageId: string | null;
+  acceptanceSessionId: string | null;
+  payeePartyId: string | null;
   title: string;
   payeeType: PaymentPayeeType;
   /** 应付，分 */
@@ -243,11 +266,15 @@ export interface Payment extends Timestamps {
   status: PaymentStatus;
   dueDate: string | null;
   paidAt: string | null;
+  paymentCondition: string | null;
+  conditionStatus: PaymentConditionStatus;
   remark: string | null;
 }
 
 export interface PaymentInput {
   stageId?: string | null;
+  acceptanceSessionId?: string | null;
+  payeePartyId?: string | null;
   title: string;
   payeeType: PaymentPayeeType;
   payableAmount: number;
@@ -255,6 +282,7 @@ export interface PaymentInput {
   status?: PaymentStatus;
   dueDate?: string | null;
   paidAt?: string | null;
+  paymentCondition?: string | null;
   remark?: string | null;
 }
 
@@ -266,6 +294,8 @@ export interface Stage extends Timestamps {
   name: string;
   sortOrder: number;
   status: StageStatus;
+  /** 首页突出展示；同项目最多一个。 */
+  isPrimaryCurrent: boolean;
   /** 0–100 */
   progressPercent: number;
   plannedStartDate: string | null;
@@ -279,6 +309,7 @@ export interface StageInput {
   name: string;
   sortOrder?: number;
   status?: StageStatus;
+  isPrimaryCurrent?: boolean;
   progressPercent?: number;
   plannedStartDate?: string | null;
   plannedEndDate?: string | null;
@@ -341,11 +372,112 @@ export interface InspectionItemStatusChange {
   imageUrls?: string[];
 }
 
+// ── 项目联系人 ────────────────────────────────────────
+
+export interface Party extends Timestamps {
+  id: string;
+  projectId: string;
+  type: PartyType;
+  name: string;
+  company: string | null;
+  phone: string | null;
+  wechat: string | null;
+  responsibility: string | null;
+  notes: string | null;
+  active: boolean;
+}
+
+export interface PartyInput {
+  type: PartyType;
+  name: string;
+  company?: string | null;
+  phone?: string | null;
+  wechat?: string | null;
+  responsibility?: string | null;
+  notes?: string | null;
+}
+
+// ── 业主行动待办 / 决策 ──────────────────────────────
+
+export interface ActionItem extends Timestamps {
+  id: string;
+  projectId: string;
+  type: ActionItemType;
+  priority: ActionItemPriority;
+  status: ActionItemStatus;
+  title: string;
+  notes: string | null;
+  decisionResult: string | null;
+  dueDate: string | null;
+  spaceId: string | null;
+  stageId: string | null;
+  relatedEntityType: string | null;
+  relatedEntityId: string | null;
+  responsiblePartyId: string | null;
+  completedAt: string | null;
+}
+
+export interface ActionItemInput {
+  type?: ActionItemType;
+  priority?: ActionItemPriority;
+  status?: ActionItemStatus;
+  title: string;
+  notes?: string | null;
+  decisionResult?: string | null;
+  dueDate?: string | null;
+  spaceId?: string | null;
+  stageId?: string | null;
+  relatedEntityType?: string | null;
+  relatedEntityId?: string | null;
+  responsiblePartyId?: string | null;
+}
+
+// ── 现场问题 ──────────────────────────────────────────
+
+export interface Issue extends Timestamps {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  severity: IssueSeverity;
+  status: IssueStatus;
+  sourceType: IssueSourceType;
+  sourceEntityId: string | null;
+  spaceId: string | null;
+  stageId: string | null;
+  responsiblePartyId: string | null;
+  dueDate: string | null;
+  resolutionNotes: string | null;
+  resolvedAt: string | null;
+  verifiedAt: string | null;
+}
+
+export interface IssueInput {
+  title: string;
+  description: string;
+  severity?: IssueSeverity;
+  sourceType?: IssueSourceType;
+  sourceEntityId?: string | null;
+  spaceId?: string | null;
+  stageId?: string | null;
+  responsiblePartyId?: string | null;
+  dueDate?: string | null;
+}
+
 // ── 首页 / 聚合（前端专用视图） ───────────────────────
 
 export interface TodoCard {
   id: string;
-  kind: "budget" | "material" | "stage_overdue" | "inspection" | "note";
+  kind:
+    | "action"
+    | "issue"
+    | "budget"
+    | "material"
+    | "delivery"
+    | "payment"
+    | "stage_overdue"
+    | "inspection"
+    | "note";
   title: string;
   subtitle: string | null;
   severity: "info" | "warn" | "danger" | "ok";
@@ -361,9 +493,11 @@ export interface ProjectOverview {
   materialCounts: {
     total: number;
     todo: number;
-    bought: number;
+    ordered: number;
     arrived: number;
     installed: number;
+    returned: number;
+    cancelled: number;
   };
   currentStage: Stage | null;
   todos: TodoCard[];

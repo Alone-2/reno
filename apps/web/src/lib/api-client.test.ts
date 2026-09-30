@@ -1,6 +1,6 @@
 import { API_ERROR_CODES } from "@reno/shared";
 import { expect, test, vi } from "vite-plus/test";
-import { ApiError, apiRequest, getApiBaseUrl } from "./api-client";
+import { ApiError, apiRequest, configureApiAuth, getApiBaseUrl } from "./api-client";
 
 test("code=0 返回 data", async () => {
   const fetchImpl = vi.fn(
@@ -52,6 +52,31 @@ test("401 可识别", async () => {
     expect(e).toBeInstanceOf(ApiError);
     expect((e as ApiError).isUnauthorized).toBe(true);
   }
+});
+
+test("请求自动携带 access token 且未授权时触发退出登录回调", async () => {
+  const onUnauthorized = vi.fn();
+  configureApiAuth({ getAccessToken: () => "access-token", onUnauthorized });
+  const fetchImpl = vi.fn(
+    async (_url: string) =>
+      new Response(
+        JSON.stringify({ code: API_ERROR_CODES.UNAUTHORIZED, message: "未登录", data: null }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+  ) as unknown as typeof fetch;
+
+  await expect(apiRequest("/protected", undefined, fetchImpl)).rejects.toBeInstanceOf(ApiError);
+  expect(fetchImpl).toHaveBeenCalledWith(
+    expect.stringContaining("/protected"),
+    expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: "Bearer access-token" }),
+    }),
+  );
+  expect(onUnauthorized).toHaveBeenCalledTimes(1);
+  configureApiAuth({ getAccessToken: () => null });
 });
 
 test("getApiBaseUrl 默认 /api", () => {

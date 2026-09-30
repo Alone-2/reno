@@ -31,7 +31,7 @@ export const mockProjects: Project[] = [
     address: "北京市朝阳区望京 SOHO",
     type: "half",
     style: "原木暖色",
-    status: "constructing",
+    status: "active",
     totalBudget: yuanToFen(300_000),
     plannedStartDate: "2026-06-01",
     plannedEndDate: "2026-12-31",
@@ -99,10 +99,16 @@ export const mockMaterials: Material[] = [
     unit: "箱",
     plannedQty: 40,
     estimatedUnitPrice: yuanToFen(120),
+    actualQty: 40,
     actualUnitPrice: yuanToFen(115),
-    status: "bought",
+    status: "ordered",
     channel: "居然之家",
     purchaseUrl: null,
+    orderNo: "JD-20260718-01",
+    orderDate: "2026-07-18",
+    expectedArrivalDate: "2026-07-22",
+    actualArrivalDate: null,
+    supplierPartyId: null,
     remark: null,
   },
   {
@@ -116,10 +122,16 @@ export const mockMaterials: Material[] = [
     unit: "套",
     plannedQty: 3,
     estimatedUnitPrice: yuanToFen(800),
+    actualQty: null,
     actualUnitPrice: null,
     status: "todo",
     channel: null,
     purchaseUrl: null,
+    orderNo: null,
+    orderDate: null,
+    expectedArrivalDate: null,
+    actualArrivalDate: null,
+    supplierPartyId: null,
     remark: null,
   },
   {
@@ -133,10 +145,16 @@ export const mockMaterials: Material[] = [
     unit: "延米",
     plannedQty: 6,
     estimatedUnitPrice: yuanToFen(2_500),
+    actualQty: 6,
     actualUnitPrice: yuanToFen(2_600),
     status: "arrived",
     channel: "厂家直签",
     purchaseUrl: null,
+    orderNo: "CABINET-01",
+    orderDate: "2026-07-01",
+    expectedArrivalDate: "2026-07-15",
+    actualArrivalDate: "2026-07-14",
+    supplierPartyId: null,
     remark: null,
   },
 ];
@@ -147,6 +165,8 @@ export const mockPayments: Payment[] = [
     id: "p-deposit",
     projectId: MOCK_PROJECT_A_ID,
     stageId: null,
+    acceptanceSessionId: null,
+    payeePartyId: null,
     title: "施工定金",
     payeeType: "contractor",
     payableAmount: yuanToFen(50_000),
@@ -154,6 +174,8 @@ export const mockPayments: Payment[] = [
     status: "paid",
     dueDate: "2026-06-10",
     paidAt: "2026-06-10",
+    paymentCondition: "开工前支付",
+    conditionStatus: "met",
     remark: null,
   },
   {
@@ -161,6 +183,8 @@ export const mockPayments: Payment[] = [
     id: "p-mid",
     projectId: MOCK_PROJECT_A_ID,
     stageId: "st-wood",
+    acceptanceSessionId: null,
+    payeePartyId: null,
     title: "中期款（木作）",
     payeeType: "contractor",
     payableAmount: yuanToFen(80_000),
@@ -168,6 +192,8 @@ export const mockPayments: Payment[] = [
     status: "partial",
     dueDate: "2026-08-01",
     paidAt: null,
+    paymentCondition: "木作阶段完成后支付",
+    conditionStatus: "unmet",
     remark: null,
   },
 ];
@@ -180,6 +206,7 @@ export const mockStages: Stage[] = [
     name: "拆改",
     sortOrder: 1,
     status: "done",
+    isPrimaryCurrent: false,
     progressPercent: 100,
     plannedStartDate: "2026-06-15",
     plannedEndDate: "2026-06-25",
@@ -194,6 +221,7 @@ export const mockStages: Stage[] = [
     name: "木作安装",
     sortOrder: 2,
     status: "ongoing",
+    isPrimaryCurrent: true,
     progressPercent: 45,
     plannedStartDate: "2026-07-01",
     plannedEndDate: "2026-08-15",
@@ -208,6 +236,7 @@ export const mockStages: Stage[] = [
     name: "软装进场",
     sortOrder: 3,
     status: "pending",
+    isPrimaryCurrent: false,
     progressPercent: 0,
     plannedStartDate: "2026-09-01",
     plannedEndDate: "2026-10-01",
@@ -275,14 +304,19 @@ export function getProjectOverview(projectId: string = MOCK_PROJECT_A_ID): Proje
   const budget = computeBudgetSummary(project.totalBudget, materials, payments);
   const health = budgetHealth(budget);
   const stages = getStagesForProject(projectId);
-  const currentStage = stages.find((s) => s.status === "ongoing") ?? null;
+  const currentStage =
+    stages.find((s) => s.status === "ongoing" && s.isPrimaryCurrent) ??
+    stages.find((s) => s.status === "ongoing") ??
+    null;
 
   const materialCounts = {
     total: materials.length,
     todo: materials.filter((m) => m.status === "todo").length,
-    bought: materials.filter((m) => m.status === "bought").length,
+    ordered: materials.filter((m) => m.status === "ordered").length,
     arrived: materials.filter((m) => m.status === "arrived").length,
     installed: materials.filter((m) => m.status === "installed").length,
+    returned: materials.filter((m) => m.status === "returned").length,
+    cancelled: materials.filter((m) => m.status === "cancelled").length,
   };
 
   return {

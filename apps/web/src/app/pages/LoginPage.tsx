@@ -10,10 +10,13 @@ export function LoginPage({ onSuccess }: { onSuccess?: () => void }) {
   const navigate = useNavigate();
   const [form, setForm] = useState<LoginInput>({ username: "", password: "" });
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const result = login(form.username, form.password);
+    setIsSubmitting(true);
+    const result = await login(form.username, form.password);
+    setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
       return;
@@ -64,8 +67,8 @@ export function LoginPage({ onSuccess }: { onSuccess?: () => void }) {
               {error}
             </p>
           ) : null}
-          <Button type="submit" className="w-full">
-            登录
+          <Button type="submit" className="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
+            {isSubmitting ? "登录中…" : "登录"}
           </Button>
         </form>
       </div>

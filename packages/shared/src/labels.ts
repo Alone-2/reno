@@ -15,9 +15,8 @@ import type {
 
 export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
   planning: "规划中",
-  purchasing: "采购中",
-  constructing: "施工中",
-  accepting: "验收中",
+  active: "进行中",
+  accepting: "完工确认",
   done: "已完工",
   archived: "已归档",
 };
@@ -29,10 +28,12 @@ export const PROJECT_TYPE_LABEL: Record<ProjectType, string> = {
 };
 
 export const MATERIAL_STATUS_LABEL: Record<MaterialStatus, string> = {
-  todo: "待购",
-  bought: "已购",
+  todo: "待采购",
+  ordered: "已下单",
   arrived: "已到货",
   installed: "已安装",
+  returned: "已退货",
+  cancelled: "已取消",
 };
 
 export const STAGE_STATUS_LABEL: Record<StageStatus, string> = {
@@ -63,14 +64,14 @@ export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
 export const BUDGET_HEALTH_LABEL: Record<BudgetHealth, string> = {
   ok: "正常",
   warn: "接近预算",
+  forecast_over: "预计超支",
   over: "已超支",
-  committed_full: "预算已排满",
 };
 
 /** Nest 语义：映射到 UI severity */
 export const BUDGET_HEALTH_SEVERITY: Record<BudgetHealth, "ok" | "warn" | "danger" | "info"> = {
   ok: "ok",
   warn: "warn",
+  forecast_over: "warn",
   over: "danger",
-  committed_full: "warn",
 };

@@ -5,7 +5,9 @@
  */
 
 import type {
+  ActionItemStatus,
   InspectionItemStatus,
+  IssueStatus,
   MaterialStatus,
   NoteStatus,
   ProjectStatus,
@@ -15,21 +17,29 @@ import type {
 type TransitionMap<S extends string> = Record<S, readonly S[]>;
 
 export const PROJECT_TRANSITIONS: TransitionMap<ProjectStatus> = {
-  planning: ["purchasing", "constructing"],
-  purchasing: ["constructing", "accepting"],
-  constructing: ["accepting", "purchasing"],
-  accepting: ["done", "constructing"],
+  planning: ["active"],
+  active: ["accepting"],
+  accepting: ["active", "done"],
   done: ["archived"],
   archived: [],
 };
 
-/** 默认向前；回退需 force=true（业主确认） */
+/** 默认正常路径；returned/cancelled 为分支状态。 */
 export const MATERIAL_FORWARD: readonly MaterialStatus[] = [
   "todo",
-  "bought",
+  "ordered",
   "arrived",
   "installed",
-] as const;
+];
+
+export const MATERIAL_TRANSITIONS: TransitionMap<MaterialStatus> = {
+  todo: ["ordered", "cancelled"],
+  ordered: ["arrived", "returned", "cancelled"],
+  arrived: ["installed", "returned"],
+  installed: ["returned"],
+  returned: ["todo"],
+  cancelled: ["todo"],
+};
 
 export const STAGE_TRANSITIONS: TransitionMap<StageStatus> = {
   pending: ["ongoing"],
@@ -42,6 +52,20 @@ export const NOTE_TRANSITIONS: TransitionMap<NoteStatus> = {
   confirmed: ["done", "need_fix"],
   need_fix: ["confirmed"],
   done: ["confirmed"],
+};
+
+export const ACTION_ITEM_TRANSITIONS: TransitionMap<ActionItemStatus> = {
+  todo: ["doing", "done", "cancelled"],
+  doing: ["todo", "done", "cancelled"],
+  done: ["doing"],
+  cancelled: ["todo"],
+};
+
+export const ISSUE_TRANSITIONS: TransitionMap<IssueStatus> = {
+  open: ["fixing", "resolved"],
+  fixing: ["open", "resolved"],
+  resolved: ["fixing", "verified"],
+  verified: ["fixing"],
 };
 
 export const INSPECTION_ITEM_TRANSITIONS: TransitionMap<InspectionItemStatus> = {
@@ -65,11 +89,11 @@ export function canMaterialTransition(
   options?: { allowBackward?: boolean },
 ): boolean {
   if (from === to) return false;
+  if (MATERIAL_TRANSITIONS[from].includes(to)) return true;
+  if (!options?.allowBackward) return false;
   const fi = MATERIAL_FORWARD.indexOf(from);
   const ti = MATERIAL_FORWARD.indexOf(to);
-  if (fi < 0 || ti < 0) return false;
-  if (ti > fi) return true;
-  return options?.allowBackward === true;
+  return fi >= 0 && ti >= 0 && ti < fi;
 }
 
 export function canStageTransition(from: StageStatus, to: StageStatus): boolean {
@@ -78,6 +102,14 @@ export function canStageTransition(from: StageStatus, to: StageStatus): boolean 
 
 export function canNoteTransition(from: NoteStatus, to: NoteStatus): boolean {
   return canTransition(NOTE_TRANSITIONS, from, to);
+}
+
+export function canActionItemTransition(from: ActionItemStatus, to: ActionItemStatus): boolean {
+  return canTransition(ACTION_ITEM_TRANSITIONS, from, to);
+}
+
+export function canIssueTransition(from: IssueStatus, to: IssueStatus): boolean {
+  return canTransition(ISSUE_TRANSITIONS, from, to);
 }
 
 export function canInspectionItemTransition(
@@ -92,7 +124,9 @@ export function isProjectWritable(status: ProjectStatus): boolean {
   return status !== "archived";
 }
 
-/** bought 及之后必须有实际单价 */
+/** 下单后产生实际采购金额；取消不要求实际单价。 */
 export function materialRequiresActualPrice(status: MaterialStatus): boolean {
-  return status !== "todo";
+  return (
+    status === "ordered" || status === "arrived" || status === "installed" || status === "returned"
+  );
 }

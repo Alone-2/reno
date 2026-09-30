@@ -6,12 +6,14 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16),
   JWT_ACCESS_TTL: z.string().default("2h"),
   JWT_REFRESH_TTL: z.string().default("7d"),
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   ENABLE_REGISTRATION: z
     .string()
     .transform((v) => v === "true")
     .default(false),
   PORT: z.coerce.number().default(3000),
   MAX_FILE_SIZE: z.coerce.number().default(20971520),
+  UPLOAD_DIR: z.string().default("uploads"),
 });
 
 const parsed = envSchema.safeParse(process.env);

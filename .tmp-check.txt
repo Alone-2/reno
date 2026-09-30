@@ -1,0 +1,445 @@
+! eslint(no-unused-vars): Variable 'value' is declared but never used. Unused variables should start with a '_'.
+     ,-[.agents/skills/design-system/scripts/generate-tokens.cjs:148:20]
+ 147 |   const colors = {};
+ 148 |   for (const [key, value] of Object.entries(semantic)) {
+     :                    ^^|^^
+     :                      `-- 'value' is declared here
+ 149 |     if (key.includes('color')) {
+     `----
+  help: Consider removing this declaration.
+
+  x typescript(TS2769): No overload matches this call.
+    ,-[apps/server/src/modules/auth/service.ts:45:5]
+ 44 |   await db.insert(refreshSession).values({
+ 45 |     id: sessionId,
+    :     ^^
+ 46 |     userId: payload.userId,
+    `----
+
+[1m[31merror:[39m[0m Lint or type issues found
+  x typescript(TS2353): Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ expiresAt?: Date | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<unknown>; id?: string | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<...>; tokenHash?: string | ... 1 more ... | SQL<...>; userId?: string | ... 1 more ... | SQL<...>; }'.
+     ,-[apps/server/src/modules/auth/service.ts:138:58]
+ 137 |     .update(refreshSession)
+ 138 |     .set({ tokenHash: hashRefreshToken(newRefreshToken), updatedAt: new Date() })
+     :                                                          ^^^^^^^^^
+ 139 |     .where(eq(refreshSession.id, payload.sessionId));
+     `----
+
+  x typescript(TS2353): Object literal may only specify known properties, and 'revokedAt' does not exist in type '{ expiresAt?: Date | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<unknown>; id?: string | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<...>; tokenHash?: string | ... 1 more ... | SQL<...>; userId?: string | ... 1 more ... | SQL<...>; }'.
+     ,-[apps/server/src/modules/auth/service.ts:149:12]
+ 148 |     .update(refreshSession)
+ 149 |     .set({ revokedAt: new Date(), updatedAt: new Date() })
+     :            ^^^^^^^^^
+ 150 |     .where(eq(refreshSession.id, payload.sessionId));
+     `----
+
+  x typescript(TS2353): Object literal may only specify known properties, and 'revokedAt' does not exist in type '{ expiresAt?: Date | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<unknown>; id?: string | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<...>; tokenHash?: string | ... 1 more ... | SQL<...>; userId?: string | ... 1 more ... | SQL<...>; }'.
+     ,-[apps/server/src/modules/auth/service.ts:195:12]
+ 194 |     .update(refreshSession)
+ 195 |     .set({ revokedAt: new Date(), updatedAt: new Date() })
+     :            ^^^^^^^^^
+ 196 |     .where(eq(refreshSession.userId, userId));
+     `----
+
+  x typescript(TS2339): Property 'refreshToken' does not exist on type '{ error?: undefined; user: { id: string; username: string; name: string; phone: string; role: "admin" | "contractor" | "designer" | "inspector" | "owner" | "property"; avatar: string; createdAt: Date; }; accessToken: string; refreshToken: string; } | { ...; }'.
+    ,-[apps/server/src/modules/auth/routes.ts:95:30]
+ 94 | 
+ 95 |   setRefreshCookie(c, result.refreshToken);
+    :                              ^^^^^^^^^^^^
+ 96 |   return success(c, sessionResponse(result));
+    `----
+
+  x typescript(TS2345): Argument of type '{ error?: undefined; user: { id: string; username: string; name: string; phone: string; role: "admin" | "contractor" | "designer" | "inspector" | "owner" | "property"; avatar: string; createdAt: Date; }; accessToken: string; refreshToken: string; } | { ...; }' is not assignable to parameter of type '{ user: unknown; accessToken: string; refreshToken:
+  | string; }'.
+    ,-[apps/server/src/modules/auth/routes.ts:96:37]
+ 95 |   setRefreshCookie(c, result.refreshToken);
+ 96 |   return success(c, sessionResponse(result));
+    :                                     ^^^^^^
+ 97 | });
+    `----
+
+  x typescript(TS2769): No overload matches this call.
+    ,-[apps/server/src/modules/member/service.ts:98:7]
+ 97 |     .values({
+ 98 |       projectId,
+    :       ^^^^^^^^^
+ 99 |       userId: target.id,
+    `----
+
+  x typescript(TS2353): Object literal may only specify known properties, and 'permissions' does not exist in type 'PgUpdateSetSource<PgTableWithColumns<{ name: "project_member"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "project_member"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; },
+  | {}, {}>; ... 7 more ...; updatedAt:...'.
+     ,-[apps/server/src/modules/member/service.ts:106:20]
+ 105 |       target: [projectMember.projectId, projectMember.userId],
+ 106 |       set: { role, permissions: permissionsForRole(role), updatedAt: new Date() },
+     :                    ^^^^^^^^^^^
+ 107 |     })
+     `----
+
+  x typescript(TS2353): Object literal may only specify known properties, and 'projectId' does not exist in type '{ userId: string; type: string; title: string; content?: string; channel: "in_app" | "sms" | "wechat"; }'.
+     ,-[apps/server/src/modules/member/service.ts:112:5]
+ 111 |     userId: target.id,
+ 112 |     projectId,
+     :     ^^^^^^^^^
+ 113 |     type: "project_invite",
+     `----
+
+  x typescript(TS2353): Object literal may only specify known properties, and 'permissions' does not exist in type '{ projectId?: string | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SQL<unknown>; role?: "contractor" | "designer" | ... 6 more ... | SQL<...>; userId?: string | ... 1 more ... | SQL<...>; }'.
+     ,-[apps/server/src/modules/member/service.ts:129:18]
+ 128 |     .update(projectMember)
+ 129 |     .set({ role, permissions: permissionsForRole(role), updatedAt: new Date() })
+     :                  ^^^^^^^^^^^
+ 130 |     .where(and(eq(projectMember.id, memberId), eq(projectMember.projectId, projectId)))
+     `----
+
+  x typescript(TS2769): No overload matches this call.
+    ,-[apps/server/src/modules/project/service.ts:66:7]
+ 65 |     .values({
+ 66 |       projectId: created.id,
+    :       ^^^^^^^^^
+ 67 |       userId: created.ownerId,
+    `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/common/error-codes.ts:1:1]
+ 1 | // 统一错误码定义
+   : ^
+ 2 | export const ErrorCode = {
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/common/env.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/common/response.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | import { ErrorCode, ErrorMessage } from "./error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/common/db.ts:1:1]
+ 1 | // 从 @reno/db 重导出 db 实例和 schema
+   : ^
+ 2 | export { db } from "@reno/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/auth/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | import { ROLES } from "@reno/shared";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/common/jwt.ts:1:1]
+ 1 | import { SignJWT, jwtVerify } from "jose";
+   : ^
+ 2 | import { env } from "./env";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/auth/service.ts:1:1]
+ 1 | import { and, eq, isNull } from "drizzle-orm";
+   : ^
+ 2 | import { hash, verify, Algorithm } from "@node-rs/argon2";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/middleware/auth.ts:1:1]
+ 1 | import { createMiddleware } from "hono/factory";
+   : ^
+ 2 | import type { JwtPayload } from "../common/jwt";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/auth/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/middleware/rbac.ts:1:1]
+ 1 | import { createMiddleware } from "hono/factory";
+   : ^
+ 2 | import type { Role } from "@reno/shared";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/notification/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/notification/service.ts:1:1]
+ 1 | import { eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, notification } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/member/permissions.ts:1:1]
+ 1 | import type { ProjectPermission } from "@reno/db";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/member/service.ts:1:1]
+ 1 | import { and, eq } from "drizzle-orm";
+   : ^
+ 2 | import {
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/middleware/project-permission.ts:1:1]
+ 1 | import type { ProjectPermission } from "@reno/db";
+   : ^
+ 2 | import { createMiddleware } from "hono/factory";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/project/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | import { PROJECT_TYPES, PROJECT_STATUS } from "@reno/shared";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/project/service.ts:1:1]
+ 1 | import { eq, desc, sql, inArray, or, and } from "drizzle-orm";
+   : ^
+ 2 | import { db, renovationProject, projectMember } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/project/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/space/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/space/service.ts:1:1]
+ 1 | import { eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, space, checklistItem } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/space/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/daily-log/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/daily-log/service.ts:1:1]
+ 1 | import { eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, dailyLog } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/daily-log/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/inspection/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/inspection/workflow.ts:1:1]
+ 1 | export type ViolationStatus = "pending" | "resolved" | "rechecked";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/inspection/service.ts:1:1]
+ 1 | import { eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, inspection, violation } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/inspection/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/acceptance/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/acceptance/workflow.ts:1:1]
+ 1 | export type AcceptanceResult = "passed" | "rectification" | "rejected";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/acceptance/service.ts:1:1]
+ 1 | import { eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, acceptance } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/acceptance/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/photo/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/photo/service.ts:1:1]
+ 1 | import { and, eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, photo } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/photo/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/notification/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { success, error } from "../../common/response";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/common/sensitive.ts:1:1]
+ 1 | // 敏感字段过滤：未登录时隐藏金额相关字段
+   : ^
+ 2 | const SENSITIVE_FIELDS = [
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/material/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/material/service.ts:1:1]
+ 1 | import { eq, desc } from "drizzle-orm";
+   : ^
+ 2 | import { db, material, expense } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/material/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/phase/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/phase/service.ts:1:1]
+ 1 | import { eq, asc } from "drizzle-orm";
+   : ^
+ 2 | import { db, projectPhase } from "../../common/db";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/phase/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/todo/service.ts:1:1]
+ 1 | import { listAcceptances } from "../acceptance/service";
+   : ^
+ 2 | import { listViolations } from "../inspection/service";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/todo/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { success } from "../../common/response";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/member/schema.ts:1:1]
+ 1 | import { z } from "zod";
+   : ^
+ 2 | 
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/modules/member/routes.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { ErrorCode } from "../../common/error-codes";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/app.ts:1:1]
+ 1 | import { Hono } from "hono";
+   : ^
+ 2 | import { cors } from "hono/cors";
+   `----
+
+  ! typescript(no-useless-default-assignment): This rule requires the `strictNullChecks` compiler option to be turned on to function correctly.
+   ,-[apps/server/src/main.ts:1:1]
+ 1 | import { serve } from "@hono/node-server";
+   : ^
+ 2 | import { app } from "./app.js";
+   `----
+
+Found 11 errors and 50 warnings in 136 files (2.0s, 16 threads)

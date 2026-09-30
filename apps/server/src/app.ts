@@ -11,6 +11,15 @@ import { inspectionRoutes } from "./modules/inspection/routes";
 import { acceptanceRoutes } from "./modules/acceptance/routes";
 import { photoRoutes } from "./modules/photo/routes";
 import { notificationRoutes } from "./modules/notification/routes";
+import { materialRoutes } from "./modules/material/routes";
+import { phaseRoutes } from "./modules/phase/routes";
+import { todoRoutes } from "./modules/todo/routes";
+import { memberRoutes } from "./modules/member/routes";
+import { actionItemRoutes } from "./modules/action-item/routes";
+import { issueRoutes } from "./modules/issue/routes";
+import { partyRoutes } from "./modules/party/routes";
+import { paymentRoutes } from "./modules/payment/routes";
+import { changeHistoryRoutes } from "./modules/change-history/routes";
 
 // Hono 应用实例与路由定义,与 serve() 分离以便测试(hono/testing)
 export const app = new Hono();
@@ -37,6 +46,15 @@ app.route("/", inspectionRoutes);
 app.route("/", acceptanceRoutes);
 app.route("/", photoRoutes);
 app.route("/", notificationRoutes);
+app.route("/", materialRoutes);
+app.route("/", phaseRoutes);
+app.route("/", todoRoutes);
+app.route("/", memberRoutes);
+app.route("/", actionItemRoutes);
+app.route("/", issueRoutes);
+app.route("/", partyRoutes);
+app.route("/", paymentRoutes);
+app.route("/", changeHistoryRoutes);
 
 // 404 处理
 app.notFound((c) => {

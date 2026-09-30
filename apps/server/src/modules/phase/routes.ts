@@ -2,9 +2,16 @@ import { Hono } from "hono";
 import { ErrorCode } from "../../common/error-codes";
 import { success, error } from "../../common/response";
 import { requireAuth } from "../../middleware/auth";
+import { requireProjectPermission } from "../../middleware/project-permission";
 import { rbac } from "../../middleware/rbac";
 import { createPhaseSchema, updatePhaseStatusSchema } from "./schema";
-import { listPhases, createPhase, updatePhaseStatus, deletePhase } from "./service";
+import {
+  listPhases,
+  createPhase,
+  updatePhaseStatus,
+  deletePhase,
+  setPrimaryPhase,
+} from "./service";
 
 export const phaseRoutes = new Hono();
 
@@ -19,7 +26,7 @@ phaseRoutes.get("/api/projects/:id/phases", requireAuth, async (c) => {
 phaseRoutes.post(
   "/api/projects/:id/phases",
   requireAuth,
-  rbac("contractor", "admin", "property"),
+  rbac("owner", "contractor", "admin", "property"),
   async (c) => {
     const projectId = c.req.param("id");
     const body = await c.req.json().catch(() => null);
@@ -36,7 +43,7 @@ phaseRoutes.post(
 phaseRoutes.put(
   "/api/phases/:id/status",
   requireAuth,
-  rbac("contractor", "admin", "property"),
+  rbac("owner", "contractor", "admin", "property"),
   async (c) => {
     const id = c.req.param("id");
     const body = await c.req.json().catch(() => null);
@@ -46,6 +53,17 @@ phaseRoutes.put(
     }
     const { status, progressPercent } = parsed.data;
     const result = await updatePhaseStatus(id, status, progressPercent);
+    if ("error" in result) return error(c, result.error);
+    return success(c, result.phase);
+  },
+);
+
+phaseRoutes.put(
+  "/api/projects/:id/phases/:phaseId/primary",
+  requireAuth,
+  requireProjectPermission("progress.write"),
+  async (c) => {
+    const result = await setPrimaryPhase(c.req.param("id"), c.req.param("phaseId"));
     if ("error" in result) return error(c, result.error);
     return success(c, result.phase);
   },

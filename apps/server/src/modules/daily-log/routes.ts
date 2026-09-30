@@ -19,7 +19,7 @@ dailyLogRoutes.get("/api/projects/:id/logs", requireAuth, async (c) => {
 dailyLogRoutes.post(
   "/api/projects/:id/logs",
   requireAuth,
-  rbac("contractor", "admin"),
+  rbac("owner", "contractor", "admin"),
   async (c) => {
     const projectId = c.req.param("id");
     const body = await c.req.json().catch(() => null);
