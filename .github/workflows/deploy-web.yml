@@ -49,20 +49,22 @@ jobs:
       - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
         run: |
           set -euo pipefail
 
+          test -n "$DEPLOY_HOST" || { echo '请先在 GitHub Actions Variables 中配置 DEPLOY_HOST'; exit 1; }
           mkdir -p ~/.ssh
           test -n "$SSH_PRIVATE_KEY"
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          ssh-keyscan -H 120.26.131.101 >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
           chmod 600 ~/.ssh/known_hosts
 
-          cat > ~/.ssh/config <<'CFG'
+          cat > ~/.ssh/config <<CFG
           Host reno-deploy
-              HostName 120.26.131.101
+              HostName $DEPLOY_HOST
               User root
               IdentityFile ~/.ssh/id_ed25519
               IdentitiesOnly yes
